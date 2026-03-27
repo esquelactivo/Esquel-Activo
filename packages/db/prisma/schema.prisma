@@ -1,0 +1,301 @@
+// =============================================================================
+// ESQUEL ACTIVO — Esquema de Base de Datos
+// Estrategia: Multi-Schema PostgreSQL
+//
+// ESQUEMAS:
+//   - public:          Entidades globales (tenants, usuarios, órdenes globales)
+//   - tenant_template: Modelo de datos POR comercio (se replica por tenant)
+//
+// Documentación Prisma: https://www.prisma.io/docs
+// =============================================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public", "tenant_template"]
+}
+
+// =============================================================================
+// SCHEMA: public — Entidades globales de la plataforma
+// =============================================================================
+
+/// Un comercio (tenant) dentro del ecosistema.
+/// Cada tenant tiene su propio esquema PostgreSQL aislado.
+model Tenant {
+  id         String     @id @default(cuid())
+  slug       String     @unique // ej: "chocolateria-esquel" → slug en URL/subdominio
+  name       String     // ej: "Chocolatería Esquel"
+  schemaName String     @unique // nombre del esquema PG: "tenant_chocolateria_esquel"
+
+  // Dominio propio (opcional, para clientes Premium)
+  customDomain String? @unique // ej: "www.chocolateria-esquel.com.ar"
+
+  // ----- Identidad Visual (White-Label) -----
+  // Estos valores se inyectan como CSS Variables en el frontend
+  primaryColor   String @default("#1a1a2e") // Color principal
+  secondaryColor String @default("#e94560") // Color de acento
+  logoUrl        String? // URL del logo (almacenado en CDN)
+  faviconUrl     String? // URL del favicon
+  brandName      String? // Nombre para mostrar en la PWA (si es distinto a "name")
+
+  // ----- Integraciones -----
+  // WhatsApp Cloud API
+  whatsappPhoneNumberId String? // ID del número de teléfono en Meta
+  whatsappApiToken      String? // Token de acceso de la API — SENSIBLE
+
+  // Email personalizado del comercio
+  contactEmail String?
+  contactPhone String?
+  address      String?
+
+  // Mercado Pago (Fase 5: Split Payments)
+  // access_token OAuth del comercio para recibir pagos directamente
+  mpAccessToken String? // — SENSIBLE
+  mpPublicKey   String?
+
+  // Lambda de Lógica Personalizada (Pattern Strategy — Blueprint §5)
+  // Si este campo tiene valor, el sistema llamará a esta URL para
+  // calcular impuestos/envíos en vez de usar la lógica estándar.
+  customLogicUrl String?
+
+  // ----- Estado -----
+  plan     TenantPlan @default(BASIC)
+  isActive Boolean    @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  memberships TenantMembership[]
+
+  @@schema("public")
+}
+
+/// Plan de suscripción del comercio en la plataforma
+enum TenantPlan {
+  BASIC        // Acceso al ecosistema global
+  PROFESSIONAL // Dominio propio + analytics
+  ENTERPRISE   // App nativa white-label (Nivel 2 del Blueprint §4)
+
+  @@schema("public")
+}
+
+/// Usuario global de la plataforma (puede acceder a múltiples comercios)
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  avatarUrl     String?
+  emailVerified DateTime?
+
+  // Auth.js v5 usa estos campos para sesiones y cuentas OAuth
+  accounts Account[]
+  sessions Session[]
+
+  memberships TenantMembership[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("public")
+}
+
+/// Rol de un usuario dentro de un comercio específico
+model TenantMembership {
+  id       String           @id @default(cuid())
+  userId   String
+  tenantId String
+  role     TenantMemberRole @default(STAFF)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, tenantId])
+  @@schema("public")
+}
+
+enum TenantMemberRole {
+  OWNER  // Dueño del comercio
+  ADMIN  // Administrador
+  STAFF  // Empleado (solo puede ver y gestionar pedidos)
+
+  @@schema("public")
+}
+
+// ----- Auth.js v5: Tablas requeridas -----
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@schema("public")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("public")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@schema("public")
+}
+
+// =============================================================================
+// SCHEMA: tenant_template — Estructura de datos POR comercio
+//
+// IMPORTANTE: Este esquema es una PLANTILLA. En producción, cada tenant
+// tendrá su propio esquema PostgreSQL (ej: tenant_chocolateria_esquel)
+// con estas mismas tablas. El aislamiento total garantiza seguridad y
+// performance independiente por comercio.
+// =============================================================================
+
+/// Categoría de productos del comercio
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  imageUrl    String?
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("tenant_template")
+}
+
+/// Producto del comercio
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  imageUrls   String[] // Array de URLs de imágenes
+  isActive    Boolean  @default(true)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  variants    ProductVariant[]
+  orderItems  OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("tenant_template")
+}
+
+/// Variante de producto (ej: talle S/M/L, sabor, color)
+model ProductVariant {
+  id          String  @id @default(cuid())
+  productId   String
+  name        String  // ej: "Talle M", "Sabor Vainilla"
+  sku         String? @unique
+  price       Decimal @db.Decimal(10, 2) // Precio en ARS
+  stock       Int     @default(0)
+  isActive    Boolean @default(true)
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@schema("tenant_template")
+}
+
+/// Orden de compra dentro de un comercio
+/// Una "Intención de Compra" (Blueprint §6) crea una orden en estado PENDING
+model Order {
+  id     String      @id @default(cuid())
+  number Int         @default(autoincrement()) // Número legible del pedido
+  status OrderStatus @default(PENDING)
+
+  // Datos del comprador (puede ser anónimo en Fase 1)
+  customerEmail String?
+  customerName  String?
+  customerPhone String?
+
+  // Datos de envío
+  shippingAddress String?
+  shippingNotes   String?
+
+  // Totales
+  subtotal Decimal @db.Decimal(10, 2)
+  shipping Decimal @default(0) @db.Decimal(10, 2)
+  total    Decimal @db.Decimal(10, 2)
+
+  // Mercado Pago (Fase 5)
+  mpPaymentId   String? // ID del pago en MP
+  mpPaymentUrl  String? // Link de pago
+
+  items OrderItem[]
+
+  // ID del usuario global que realizó la compra
+  // Es nullable porque en Fase 1 puede comprar sin cuenta
+  globalUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("tenant_template")
+}
+
+enum OrderStatus {
+  PENDING    // Intención de compra creada, esperando confirmación del comercio
+  CONFIRMED  // El comercio confirmó el pedido
+  PREPARING  // En preparación
+  READY      // Listo para retirar/enviar
+  SHIPPED    // En camino
+  DELIVERED  // Entregado
+  CANCELLED  // Cancelado
+
+  @@schema("tenant_template")
+}
+
+/// Ítem dentro de una orden
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  variantId String
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2) // Precio al momento de la compra (histórico)
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@schema("tenant_template")
+}

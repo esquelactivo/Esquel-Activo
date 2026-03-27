@@ -1,0 +1,57 @@
+/*
+ * Estilos globales compartidos por todas las apps.
+ *
+ * SISTEMA DE THEMING:
+ * Las variables --color-primary y --color-secondary son inyectadas
+ * dinámicamente en el elemento <html> por cada app según el tenant.
+ * Tailwind las consume como colores personalizados.
+ *
+ * Ejemplo de uso en componente:
+ *   <button className="bg-primary text-white">Comprar</button>
+ */
+
+@import "tailwindcss";
+
+@theme {
+  /* Colores del tenant — sobrescritos dinámicamente desde la DB */
+  --color-primary: #1a1a2e;
+  --color-secondary: #e94560;
+
+  /* Tipografía base */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Espaciado base (mantener consistencia entre apps) */
+  --spacing-page: 1rem;
+  --spacing-page-md: 2rem;
+  --spacing-page-lg: 4rem;
+}
+
+/* Reset y base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Scroll suave para navegación interna */
+  scroll-behavior: smooth;
+  /* Prevenir zoom en iOS al enfocar inputs */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-white text-gray-900 antialiased;
+  font-family: var(--font-sans);
+}
+
+/* Optimización de imágenes — Blueprint §8 */
+img {
+  @apply max-w-full;
+}
+
+/* Focus visible accesible */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-primary;
+}
