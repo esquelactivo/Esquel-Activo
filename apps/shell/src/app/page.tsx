@@ -10,14 +10,14 @@ export default async function HomePage() {
           {/* Logo del tenant */}
           {tenant.logoUrl && (
             <div
-              className="flex h-32 w-64 items-center justify-center rounded-xl p-4"
+              className="flex h-40 w-72 items-center justify-center overflow-hidden rounded-xl p-4"
               style={{ backgroundColor: tenant.primaryColor }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={tenant.logoUrl}
                 alt={`Logo de ${tenant.brandName}`}
-                className="h-full w-full object-contain"
+                className="max-h-full max-w-full object-contain"
               />
             </div>
           )}

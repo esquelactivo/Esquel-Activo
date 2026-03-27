@@ -48,7 +48,7 @@ export async function GET() {
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#1a1a2e',
-        icons: defaultIcons(origin),
+        icons: [], // Se agregarán cuando haya íconos PWA reales
         categories: ['shopping'],
         lang: 'es-AR',
       }
