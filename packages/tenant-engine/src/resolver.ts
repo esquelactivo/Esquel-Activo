@@ -76,6 +76,10 @@ export function toTenantConfig(
     contactEmail: string | null
     contactPhone: string | null
     address: string | null
+    instagramUrl: string | null
+    facebookUrl: string | null
+    latitude: number | null
+    longitude: number | null
     customDomain: string | null
     customLogicUrl: string | null
     whatsappPhoneNumberId: string | null
@@ -96,6 +100,10 @@ export function toTenantConfig(
     contactEmail: tenant.contactEmail,
     contactPhone: tenant.contactPhone,
     address: tenant.address,
+    instagramUrl: tenant.instagramUrl,
+    facebookUrl: tenant.facebookUrl,
+    latitude: tenant.latitude,
+    longitude: tenant.longitude,
     features: {
       hasWhatsApp: Boolean(tenant.whatsappPhoneNumberId),
       hasMercadoPago: Boolean(tenant.mpAccessToken),

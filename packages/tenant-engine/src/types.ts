@@ -19,6 +19,12 @@ export type TenantConfig = {
   contactEmail: string | null
   contactPhone: string | null
   address: string | null
+  instagramUrl: string | null
+  facebookUrl: string | null
+
+  // Geolocalización
+  latitude: number | null
+  longitude: number | null
 
   // Capacidades habilitadas para este tenant
   features: TenantFeatures

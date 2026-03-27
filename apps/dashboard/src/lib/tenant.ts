@@ -15,8 +15,9 @@ export const getCurrentTenant = cache(async (): Promise<TenantConfig | null> => 
     select: {
       id: true, slug: true, name: true, brandName: true, schemaName: true,
       primaryColor: true, secondaryColor: true, logoUrl: true, faviconUrl: true,
-      contactEmail: true, contactPhone: true, address: true, customDomain: true,
-      customLogicUrl: true, whatsappPhoneNumberId: true, mpAccessToken: true, plan: true,
+      contactEmail: true, contactPhone: true, address: true,
+      instagramUrl: true, facebookUrl: true, latitude: true, longitude: true,
+      customDomain: true, customLogicUrl: true, whatsappPhoneNumberId: true, mpAccessToken: true, plan: true,
     },
   })
 

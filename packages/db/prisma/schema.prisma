@@ -53,6 +53,14 @@ model Tenant {
   contactPhone String?
   address      String?
 
+  // Redes sociales
+  instagramUrl String?
+  facebookUrl  String?
+
+  // Geolocalización (para mapa en la app)
+  latitude  Float?
+  longitude Float?
+
   // Mercado Pago (Fase 5: Split Payments)
   // access_token OAuth del comercio para recibir pagos directamente
   mpAccessToken String? // — SENSIBLE

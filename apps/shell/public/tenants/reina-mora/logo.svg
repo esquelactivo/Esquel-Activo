@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" width="400" height="200">
+  <!-- Fondo de la marca -->
+  <rect width="400" height="200" fill="#0f2c32" rx="12"/>
+  <!-- Placeholder hasta tener el logo PNG real -->
+  <text x="200" y="90" font-family="Georgia, serif" font-size="52" font-weight="bold"
+        fill="white" text-anchor="middle" letter-spacing="4">REINA MORA</text>
+  <text x="200" y="130" font-family="Georgia, serif" font-size="18"
+        fill="#c8a2a2" text-anchor="middle" letter-spacing="2">Sabores que cuidan</text>
+  <text x="200" y="158" font-family="Arial, sans-serif" font-size="11"
+        fill="#c8a2a2" text-anchor="middle" opacity="0.6">Panadería &amp; Pastelería — Esquel</text>
+</svg>
