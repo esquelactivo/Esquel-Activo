@@ -62,6 +62,66 @@ async function main() {
   })
 
   console.log(`✅ Tenant creado: ${reinaMora.name} (slug: ${reinaMora.slug})`)
+
+  // ---------------------------------------------------------------------------
+  // TENANT #2 — Meraki Sur (Agencia de viajes)
+  // ---------------------------------------------------------------------------
+  const merakiSur = await prisma.tenant.upsert({
+    where: { slug: 'meraki-sur' },
+    update: {},
+    create: {
+      slug: 'meraki-sur',
+      name: 'Meraki Sur',
+      brandName: 'Meraki Sur',
+      schemaName: 'tenant_meraki_sur',
+      primaryColor: '#1a1a2e',
+      secondaryColor: '#e94560',
+      plan: 'BASIC',
+      isActive: true,
+    },
+  })
+
+  console.log(`✅ Tenant creado: ${merakiSur.name} (slug: ${merakiSur.slug})`)
+
+  // ---------------------------------------------------------------------------
+  // TENANT #3 — Limits Adventure (Agencia de viajes)
+  // ---------------------------------------------------------------------------
+  const limitsAdventure = await prisma.tenant.upsert({
+    where: { slug: 'limits-adventure' },
+    update: {},
+    create: {
+      slug: 'limits-adventure',
+      name: 'Limits Adventure',
+      brandName: 'Limits Adventure',
+      schemaName: 'tenant_limits_adventure',
+      primaryColor: '#1a1a2e',
+      secondaryColor: '#e94560',
+      plan: 'BASIC',
+      isActive: true,
+    },
+  })
+
+  console.log(`✅ Tenant creado: ${limitsAdventure.name} (slug: ${limitsAdventure.slug})`)
+
+  // ---------------------------------------------------------------------------
+  // TENANT #4 — Toros (Sushi & Woks)
+  // ---------------------------------------------------------------------------
+  const toros = await prisma.tenant.upsert({
+    where: { slug: 'toros' },
+    update: {},
+    create: {
+      slug: 'toros',
+      name: 'Toros',
+      brandName: 'Toros',
+      schemaName: 'tenant_toros',
+      primaryColor: '#1a1a2e',
+      secondaryColor: '#e94560',
+      plan: 'BASIC',
+      isActive: true,
+    },
+  })
+
+  console.log(`✅ Tenant creado: ${toros.name} (slug: ${toros.slug})`)
   console.log(`   Esquema DB: ${reinaMora.schemaName}`)
   console.log(`   Color principal: ${reinaMora.primaryColor}`)
   console.log(`   Teléfono: ${reinaMora.contactPhone ?? 'no configurado'}`)
