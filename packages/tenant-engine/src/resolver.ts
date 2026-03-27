@@ -128,4 +128,4 @@ export function getTenantCssVars(tenant: TenantConfig): Record<string, string> {
   }
 }
 
-export type { TenantConfig, TenantFeatures, TenantResolutionResult, TenantResolutionSource } from './types.js'
+export type { TenantConfig, TenantFeatures, TenantResolutionResult, TenantResolutionSource } from './types'

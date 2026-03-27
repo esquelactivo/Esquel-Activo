@@ -4,7 +4,7 @@
  *
  * Crea los tenants reales del ecosistema Esquel Activo.
  */
-import { prisma } from './client.js'
+import { prisma } from './client'
 
 async function main() {
   console.log('🌱 Iniciando seed de la base de datos...')
