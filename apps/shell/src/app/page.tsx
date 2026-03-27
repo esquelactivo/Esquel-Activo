@@ -1,13 +1,33 @@
+import Link from 'next/link'
 import { getCurrentTenant } from '@/lib/tenant'
+import { prisma } from '@esquel-activo/db'
+
+/**
+ * Obtiene todos los tenants activos para mostrar en el carrusel.
+ * Solo trae los campos necesarios para el listado (no datos sensibles).
+ */
+async function getAllTenants() {
+  return prisma.tenant.findMany({
+    where: { isActive: true },
+    select: {
+      slug: true,
+      name: true,
+      brandName: true,
+      logoUrl: true,
+      primaryColor: true,
+    },
+    orderBy: { name: 'asc' },
+  })
+}
 
 export default async function HomePage() {
   const tenant = await getCurrentTenant()
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-white p-8">
-      {tenant ? (
+  // Si estamos dentro de un tenant, mostramos su página
+  if (tenant) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-white p-8">
         <div className="flex flex-col items-center gap-4 text-center">
-          {/* Logo del tenant */}
           {tenant.logoUrl && (
             <div
               className="flex h-40 w-72 items-center justify-center overflow-hidden rounded-xl p-4"
@@ -31,7 +51,6 @@ export default async function HomePage() {
             )}
           </div>
 
-          {/* Badges de integraciones activas */}
           <div className="flex flex-wrap justify-center gap-2 text-xs">
             {tenant.features.hasWhatsApp && (
               <span className="rounded-full bg-green-100 px-3 py-1 text-green-700">
@@ -65,17 +84,65 @@ export default async function HomePage() {
             )}
           </div>
 
-          {/* Catálogo — Fase 2 */}
           <p className="mt-4 text-sm text-gray-400">
             Catálogo de productos — próximamente
           </p>
         </div>
-      ) : (
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-4xl font-bold text-[#0f2c32]">Esquel Activo</h1>
-          <p className="text-gray-500">Ecosistema digital de comercios de Esquel</p>
+      </main>
+    )
+  }
+
+  // ---- Página principal de la plataforma (sin tenant) ----
+  const tenants = await getAllTenants()
+
+  return (
+    <main className="flex min-h-screen flex-col items-center bg-white px-4 pt-12">
+      {/* Header de la plataforma */}
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl font-bold text-[#0f2c32]">Esquel Activo</h1>
+        <p className="mt-2 text-gray-500">Ecosistema digital de comercios de Esquel</p>
+      </div>
+
+      {/* Carrusel de comercios — estilo historias */}
+      <div className="w-full max-w-2xl">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
+          Comercios
+        </h2>
+        <div className="flex gap-5 overflow-x-auto pb-4">
+          {tenants.map((t) => (
+            <Link
+              key={t.slug}
+              href={`?tenant=${t.slug}`}
+              className="group flex shrink-0 flex-col items-center gap-2"
+            >
+              {/* Anillo con gradiente tipo historia */}
+              <div className="rounded-full bg-gradient-to-tr from-pink-400 via-red-400 to-orange-300 p-[3px] transition-transform group-hover:scale-105">
+                <div
+                  className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-[3px] border-white"
+                  style={{ backgroundColor: t.primaryColor }}
+                >
+                  {t.logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={t.logoUrl}
+                      alt={t.brandName ?? t.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold text-white">
+                      {t.name.charAt(0)}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {/* Nombre debajo */}
+              <span className="max-w-[80px] truncate text-center text-xs text-gray-600">
+                {t.brandName ?? t.name}
+              </span>
+            </Link>
+          ))}
         </div>
-      )}
+      </div>
     </main>
   )
 }
