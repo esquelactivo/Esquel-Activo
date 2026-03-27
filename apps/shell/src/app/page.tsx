@@ -97,12 +97,6 @@ export default async function HomePage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white px-4 pt-12">
-      {/* Header de la plataforma */}
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-[#0f2c32]">Esquel Activo</h1>
-        <p className="mt-2 text-gray-500">Ecosistema digital de comercios de Esquel</p>
-      </div>
-
       {/* Carrusel de comercios — estilo historias */}
       <div className="w-full max-w-2xl">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">

@@ -23,7 +23,7 @@ export function PlatformLogo({ inverse = false }: PlatformLogoProps) {
       <img
         src={src}
         alt="Esquel Activo"
-        className="h-8 w-auto"
+        className="h-6 w-auto"
       />
     </Link>
   )
