@@ -1,16 +1,13 @@
 /*
- * Estilos globales compartidos por todas las apps.
+ * Estilos base compartidos — Esquel Activo UI
  *
- * SISTEMA DE THEMING:
- * Las variables --color-primary y --color-secondary son inyectadas
- * dinámicamente en el elemento <html> por cada app según el tenant.
- * Tailwind las consume como colores personalizados.
+ * Este archivo NO importa tailwindcss directamente.
+ * Cada app lo importa después de @import "tailwindcss".
  *
- * Ejemplo de uso en componente:
- *   <button className="bg-primary text-white">Comprar</button>
+ * Uso en cada app (globals.css):
+ *   @import "tailwindcss";
+ *   @import "@esquel-activo/ui/globals.css";
  */
-
-@import "tailwindcss";
 
 @theme {
   /* Colores del tenant — sobrescritos dinámicamente desde la DB */
@@ -20,11 +17,6 @@
   /* Tipografía base */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-
-  /* Espaciado base (mantener consistencia entre apps) */
-  --spacing-page: 1rem;
-  --spacing-page-md: 2rem;
-  --spacing-page-lg: 4rem;
 }
 
 /* Reset y base */
@@ -35,23 +27,22 @@
 }
 
 html {
-  /* Scroll suave para navegación interna */
   scroll-behavior: smooth;
-  /* Prevenir zoom en iOS al enfocar inputs */
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  @apply bg-white text-gray-900 antialiased;
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Optimización de imágenes — Blueprint §8 */
 img {
-  @apply max-w-full;
+  max-width: 100%;
+  height: auto;
 }
 
-/* Focus visible accesible */
 :focus-visible {
-  @apply outline-2 outline-offset-2 outline-primary;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
