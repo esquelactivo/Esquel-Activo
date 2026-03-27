@@ -3,16 +3,19 @@
  *
  * PRIORIDAD DE RESOLUCIÓN (de mayor a menor):
  *   1. Header x-tenant-id  → Apps nativas Capacitor
- *   2. Dominio propio       → www.chocolateria-esquel.com.ar
+ *   2. Query param ?tenant= → Solo en desarrollo local
  *   3. Subdominio           → chocolateria.esquel-activo.com.ar
- *   4. Query param ?tenant= → Solo en desarrollo local
+ *   4. Dominio propio       → www.chocolateria-esquel.com.ar
  *
  * Esta función corre en el Edge Runtime de Next.js (middleware.ts)
  * por lo que NO puede usar Node.js APIs. Solo Web APIs + fetch.
  */
-import type { TenantConfig, TenantResolutionResult, TenantResolutionSource } from './types.js'
+import type { TenantConfig, TenantResolutionResult, TenantResolutionSource } from './types'
 
 const PLATFORM_DOMAIN = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN ?? 'esquel-activo.com.ar'
+
+// Hostnames locales que NO son dominios propios de tenants
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0'])
 
 /**
  * Extrae el slug del tenant de una URL de request.
@@ -23,31 +26,16 @@ export function extractTenantSlug(
   searchParams: URLSearchParams,
   headers: Headers
 ): { slug: string; source: TenantResolutionSource } | null {
+  // Remover el puerto del hostname (localhost:3000 → localhost)
+  const cleanHostname = hostname.split(':')[0] ?? hostname
+
   // 1. Header de aplicación nativa (máxima prioridad)
   const headerTenantId = headers.get('x-tenant-id')
   if (headerTenantId) {
     return { slug: headerTenantId, source: 'header' }
   }
 
-  // 2. Subdominio de la plataforma
-  if (hostname.endsWith(`.${PLATFORM_DOMAIN}`)) {
-    const subdomain = hostname.replace(`.${PLATFORM_DOMAIN}`, '')
-    // "www" o el dominio principal no son tenants
-    if (subdomain && subdomain !== 'www') {
-      return { slug: subdomain, source: 'subdomain' }
-    }
-    return null // Es el dominio principal
-  }
-
-  // 3. Dominio propio (no es el dominio de la plataforma)
-  if (hostname !== PLATFORM_DOMAIN && hostname !== `www.${PLATFORM_DOMAIN}`) {
-    // La lookup del dominio propio requiere consultar la DB
-    // Devolvemos el hostname completo como "slug" para que
-    // la función resolveTenantByDomain lo busque correctamente
-    return { slug: hostname, source: 'custom_domain' }
-  }
-
-  // 4. Query param solo en desarrollo
+  // 2. Query param en desarrollo (antes que subdominios/dominios propios)
   if (process.env.NODE_ENV === 'development') {
     const tenantParam = searchParams.get('tenant')
     if (tenantParam) {
@@ -55,7 +43,25 @@ export function extractTenantSlug(
     }
   }
 
-  return null // Dominio principal de la plataforma
+  // 3. Subdominio de la plataforma
+  if (cleanHostname.endsWith(`.${PLATFORM_DOMAIN}`)) {
+    const subdomain = cleanHostname.replace(`.${PLATFORM_DOMAIN}`, '')
+    if (subdomain && subdomain !== 'www') {
+      return { slug: subdomain, source: 'subdomain' }
+    }
+    return null // Es el dominio principal
+  }
+
+  // 4. Dominio propio (excluir hosts locales y el dominio de la plataforma)
+  const isLocalHost = LOCAL_HOSTS.has(cleanHostname)
+  const isPlatformDomain =
+    cleanHostname === PLATFORM_DOMAIN || cleanHostname === `www.${PLATFORM_DOMAIN}`
+
+  if (!isLocalHost && !isPlatformDomain) {
+    return { slug: cleanHostname, source: 'custom_domain' }
+  }
+
+  return null // Dominio principal de la plataforma o localhost sin ?tenant=
 }
 
 /**
