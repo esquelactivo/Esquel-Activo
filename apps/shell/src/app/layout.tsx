@@ -14,6 +14,7 @@ import { getTenantCssVars } from '@esquel-activo/tenant-engine'
 import { prisma } from '@esquel-activo/db'
 import { getCurrentTenant } from '@/lib/tenant'
 import { UniversalNav } from '@/components/UniversalNav'
+import { PlatformLogo } from '@/components/PlatformLogo'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -71,7 +72,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {tenant?.faviconUrl && <link rel="icon" href={tenant.faviconUrl} />}
       </head>
       <body className="min-h-screen">
-        {/* Menú universal — siempre visible en todas las páginas */}
+        {/* Logo de la plataforma — arriba a la izquierda, siempre visible */}
+        <PlatformLogo />
+
+        {/* Menú universal — arriba a la derecha, siempre visible */}
         <UniversalNav
           tenants={navTenants}
           currentTenantSlug={tenant?.slug ?? null}
