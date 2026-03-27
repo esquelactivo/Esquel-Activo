@@ -14,7 +14,10 @@ async function main() {
   // ---------------------------------------------------------------------------
   const reinaMora = await prisma.tenant.upsert({
     where: { slug: 'reina-mora' },
-    update: {},
+    update: {
+      logoUrl: '/tenants/reina-mora/logo.svg',
+      faviconUrl: '/tenants/reina-mora/logo.svg',
+    },
     create: {
       slug: 'reina-mora',
       name: 'Reina Mora',
@@ -26,8 +29,8 @@ async function main() {
       // y ejecutar el seed nuevamente para actualizar la URL.
       primaryColor: '#0f2c32',    // Verde oscuro de la marca
       secondaryColor: '#c8a2a2',  // Rosa suave (complementario del verde, estilo patisserie)
-      logoUrl: '/tenants/reina-mora/logo.png',
-      faviconUrl: '/tenants/reina-mora/favicon.png',
+      logoUrl: '/tenants/reina-mora/logo.svg',
+      faviconUrl: '/tenants/reina-mora/logo.svg',
 
       // ----- Contacto -----
       contactPhone: '+542945699613', // WhatsApp: 542945699613

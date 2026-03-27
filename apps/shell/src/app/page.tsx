@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { getCurrentTenant } from '@/lib/tenant'
 
 export default async function HomePage() {
@@ -14,13 +13,11 @@ export default async function HomePage() {
               className="flex h-32 w-64 items-center justify-center rounded-xl p-4"
               style={{ backgroundColor: tenant.primaryColor }}
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={tenant.logoUrl}
                 alt={`Logo de ${tenant.brandName}`}
-                width={220}
-                height={100}
-                className="object-contain"
-                priority
+                className="h-full w-full object-contain"
               />
             </div>
           )}
