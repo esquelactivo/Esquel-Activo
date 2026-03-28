@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@esquel-activo/db'
+import { LogoUpload } from '@/components/LogoUpload'
 
 export const metadata = { title: 'Configuración' }
 
@@ -18,13 +19,23 @@ export default async function SettingsPage() {
       })
     : null
 
+  const displayName = tenant?.brandName ?? tenant?.name ?? 'Mi negocio'
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-bold text-gray-900">Configuración</h1>
 
+      {/* Logo */}
+      <Section title="Logo" icon="🖼️">
+        <LogoUpload
+          currentLogoUrl={tenant?.logoUrl ?? null}
+          tenantName={displayName}
+        />
+      </Section>
+
       {/* Secciones */}
       <Section title="Mi negocio" icon="🏪">
-        <InfoRow label="Nombre" value={tenant?.brandName ?? '—'} />
+        <InfoRow label="Nombre" value={displayName} />
         <InfoRow label="Teléfono / WhatsApp" value={tenant?.contactPhone ?? 'No configurado'} />
         <InfoRow label="Email" value={tenant?.contactEmail ?? 'No configurado'} />
         <InfoRow label="Dirección" value={tenant?.address ?? 'No configurado'} />

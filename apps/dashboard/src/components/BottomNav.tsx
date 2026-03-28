@@ -67,15 +67,25 @@ export function BottomNav() {
 /**
  * Sidebar lateral — visible solo en desktop.
  */
-export function Sidebar({ tenantName }: { tenantName: string }) {
+export function Sidebar({ tenantName, logoUrl }: { tenantName: string; logoUrl: string | null }) {
   const pathname = usePathname()
 
   return (
     <aside className="hidden w-56 shrink-0 border-r border-gray-100 bg-white md:flex md:flex-col">
       {/* Logo del negocio */}
       <div className="border-b border-gray-100 px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Panel de gestión</p>
-        <p className="mt-0.5 text-sm font-bold text-gray-900">{tenantName}</p>
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={tenantName}
+            className="mb-1 h-10 w-auto max-w-[160px] object-contain"
+          />
+        ) : (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Panel de gestión</p>
+            <p className="mt-0.5 text-sm font-bold text-gray-900">{tenantName}</p>
+          </>
+        )}
       </div>
 
       {/* Links */}
