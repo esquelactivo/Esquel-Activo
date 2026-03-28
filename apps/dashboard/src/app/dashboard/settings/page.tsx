@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@esquel-activo/db'
 import { LogoUpload } from '@/components/LogoUpload'
+import { LogoutButton } from '@/components/LogoutButton'
 
 export const metadata = { title: 'Configuración' }
 
@@ -66,6 +67,11 @@ export default async function SettingsPage() {
           Configurar WhatsApp — próximamente
         </button>
       </Section>
+
+      {/* Cerrar sesión — visible en mobile, en desktop está en el sidebar */}
+      <div className="rounded-2xl bg-white p-2 shadow-sm ring-1 ring-gray-100 md:hidden">
+        <LogoutButton />
+      </div>
     </div>
   )
 }
