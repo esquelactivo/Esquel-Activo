@@ -42,12 +42,12 @@ export function ProductSlideshow({ products }: { products: FeaturedProduct[] }) 
             i === current ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          {/* Imagen o fondo de color */}
           {p.imageUrls[0] ? (
             <img
               src={p.imageUrls[0]}
               alt={p.name}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="h-full w-full object-cover object-center"
+              style={{ position: 'absolute', inset: 0 }}
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary" />
