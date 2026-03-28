@@ -16,7 +16,8 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@prisma/client": "^6.3.1"
+    "@prisma/client": "^6.3.1",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "@esquel-activo/config": "workspace:*",

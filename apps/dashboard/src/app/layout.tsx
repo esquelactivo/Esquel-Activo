@@ -1,22 +1,22 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
-import { getTenantCssVars } from '@esquel-activo/tenant-engine'
-import { getCurrentTenant } from '@/lib/tenant'
+import { SessionProvider } from 'next-auth/react'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: { template: '%s | Panel', default: 'Panel de Gestión — Esquel Activo' },
+  title: { template: '%s | Esquel Activo', default: 'Panel de gestión' },
 }
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const tenant = await getCurrentTenant()
-  const cssVars = tenant ? getTenantCssVars(tenant) : {}
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={geistSans.variable} style={cssVars as React.CSSProperties}>
-      <body className="min-h-screen bg-gray-100">{children}</body>
+    <html lang="es" className={geistSans.variable}>
+      <body className="min-h-screen bg-gray-50 antialiased">
+        <SessionProvider>
+          {children}
+        </SessionProvider>
+      </body>
     </html>
   )
 }

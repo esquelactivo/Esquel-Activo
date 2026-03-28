@@ -1,19 +1,19 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { extractTenantSlug } from '@esquel-activo/tenant-engine'
+import { auth } from '@/lib/auth'
+import { NextResponse } from 'next/server'
 
-export function middleware(request: NextRequest) {
-  const { hostname } = new URL(request.url)
-  const resolution = extractTenantSlug(hostname, request.nextUrl.searchParams, request.headers)
+export default auth((req) => {
+  const isLoggedIn = !!req.auth
+  const isLoginPage = req.nextUrl.pathname === '/login'
 
-  const response = NextResponse.next()
-  response.headers.set('x-resolved-tenant-slug', resolution?.slug ?? '')
-  if (resolution) {
-    response.headers.set('x-tenant-resolution-source', resolution.source)
+  if (!isLoggedIn && !isLoginPage) {
+    return NextResponse.redirect(new URL('/login', req.url))
   }
 
-  return response
-}
+  if (isLoggedIn && isLoginPage) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+})
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/auth).*)'],
 }

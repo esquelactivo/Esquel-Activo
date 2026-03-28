@@ -5,6 +5,7 @@
  * Crea los tenants reales del ecosistema Esquel Activo.
  */
 import { prisma } from './client'
+import { hash } from 'bcryptjs'
 
 async function main() {
   console.log('🌱 Iniciando seed de la base de datos...')
@@ -131,6 +132,32 @@ async function main() {
   console.log('📁 PENDIENTE: Copiar logo a:')
   console.log('   apps/shell/public/tenants/reina-mora/logo.png')
   console.log('   apps/shell/public/tenants/reina-mora/favicon.png')
+  console.log()
+  // ---------------------------------------------------------------------------
+  // USUARIOS PROPIETARIOS
+  // ---------------------------------------------------------------------------
+  const password = await hash('esquel2024', 10)
+
+  // Propietario de Reina Mora
+  const ownerReinaMora = await prisma.user.upsert({
+    where: { email: 'reinamora@esquel-activo.com.ar' },
+    update: {},
+    create: {
+      email: 'reinamora@esquel-activo.com.ar',
+      name: 'Reina Mora',
+      passwordHash: password,
+      memberships: {
+        create: {
+          tenantId: reinaMora.id,
+          role: 'OWNER',
+        },
+      },
+    },
+  })
+
+  console.log(`✅ Usuario creado: ${ownerReinaMora.email} (contraseña: esquel2024)`)
+  console.log()
+  console.log('⚠️  IMPORTANTE: Cambiá la contraseña apenas ingreses al Dashboard.')
   console.log()
   console.log('🎉 Seed completado.')
 }

@@ -17,11 +17,14 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "next-auth": "^5.0.0-beta.25",
+    "bcryptjs": "^2.4.3",
+    "zod": "^3.24.0",
     "tailwindcss": "^4.1.0",
     "@tailwindcss/postcss": "^4.1.0"
   },
   "devDependencies": {
     "@esquel-activo/config": "workspace:*",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

@@ -100,6 +100,9 @@ model User {
   avatarUrl     String?
   emailVerified DateTime?
 
+  // Contraseña hasheada (bcrypt) — null si usa OAuth
+  passwordHash String?
+
   // Auth.js v5 usa estos campos para sesiones y cuentas OAuth
   accounts Account[]
   sessions Session[]
