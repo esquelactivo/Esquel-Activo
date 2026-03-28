@@ -1,6 +1,38 @@
 import Link from 'next/link'
 import { getCurrentTenant } from '@/lib/tenant'
 import { prisma } from '@esquel-activo/db'
+import { HeroSlideshow } from '@/components/HeroSlideshow'
+
+// Slides placeholder — se reemplazarán con datos de la DB cuando esté el Dashboard
+const PLACEHOLDER_SLIDES = [
+  {
+    id: '1',
+    imageUrl: null,
+    title: 'Bienvenidos a Esquel Activo',
+    subtitle: 'Descubrí los mejores comercios de Esquel',
+    ctaLabel: 'Ver comercios',
+    ctaUrl: '#comercios',
+    bgColor: '#0f2c32',
+  },
+  {
+    id: '2',
+    imageUrl: null,
+    title: 'Promos de temporada',
+    subtitle: 'Las mejores ofertas de la ciudad en un solo lugar',
+    ctaLabel: null,
+    ctaUrl: null,
+    bgColor: '#1a3a4a',
+  },
+  {
+    id: '3',
+    imageUrl: null,
+    title: 'Pedí y retirá',
+    subtitle: 'Compras online con retiro en el local',
+    ctaLabel: null,
+    ctaUrl: null,
+    bgColor: '#2d1b4e',
+  },
+]
 
 /**
  * Obtiene todos los tenants activos para mostrar en el carrusel.
@@ -97,8 +129,13 @@ export default async function HomePage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white px-4 pt-24">
-      {/* Carrusel de comercios — estilo historias */}
+      {/* Slideshow principal — promos y destacados */}
       <div className="w-full max-w-4xl">
+        <HeroSlideshow slides={PLACEHOLDER_SLIDES} />
+      </div>
+
+      {/* Carrusel de comercios — estilo historias */}
+      <div className="mt-8 w-full max-w-4xl">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
           Comercios
         </h2>
