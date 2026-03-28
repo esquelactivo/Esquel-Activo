@@ -217,6 +217,15 @@ model Product {
   imageUrls   String[] // Array de URLs de imágenes
   isActive    Boolean  @default(true)
 
+  // Precio base (requerido). Las variantes pueden sobreescribir este precio.
+  price         Decimal  @db.Decimal(10, 2)
+  // Precio con descuento (opcional). Si está seteado, se muestra el precio
+  // original tachado y este como precio final.
+  discountPrice Decimal? @db.Decimal(10, 2)
+
+  // Si está en true, aparece en el slideshow hero de la app del comercio
+  isFeatured Boolean @default(false)
+
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id])
 
