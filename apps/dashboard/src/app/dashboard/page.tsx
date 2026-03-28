@@ -45,7 +45,7 @@ export default async function DashboardHomePage() {
       <div>
         <h2 className="mb-3 text-sm font-semibold text-gray-500">Acciones rápidas</h2>
         <div className="grid grid-cols-2 gap-3">
-          <QuickAction href="/dashboard/products/new" label="Agregar producto" icon="➕" />
+          <QuickAction href="/dashboard/products" label="Agregar producto" icon="➕" />
           <QuickAction href="/dashboard/orders" label="Ver pedidos" icon="📋" />
           <QuickAction href="/dashboard/settings" label="Configurar negocio" icon="⚙️" />
           <QuickAction href="/dashboard/settings#whatsapp" label="Configurar WhatsApp" icon="💬" />
