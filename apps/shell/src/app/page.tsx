@@ -98,7 +98,7 @@ export default async function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-white px-4 pt-24">
       {/* Carrusel de comercios — estilo historias */}
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-4xl">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
           Comercios
         </h2>
