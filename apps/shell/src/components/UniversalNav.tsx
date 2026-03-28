@@ -49,7 +49,7 @@ export function UniversalNav({ tenants, currentTenantSlug }: UniversalNavProps) 
   }, [isOpen])
 
   return (
-    <div ref={menuRef} className="fixed top-4 right-4 z-50">
+    <div ref={menuRef} className="relative">
       {/* Botón grid */}
       <button
         onClick={() => setIsOpen(!isOpen)}

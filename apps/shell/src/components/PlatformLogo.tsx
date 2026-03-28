@@ -16,7 +16,7 @@ export function PlatformLogo({ inverse = false }: PlatformLogoProps) {
   return (
     <Link
       href="/"
-      className="fixed top-4 left-4 z-50 transition-opacity hover:opacity-80"
+      className="transition-opacity hover:opacity-80"
       aria-label="Ir al inicio — Esquel Activo"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
