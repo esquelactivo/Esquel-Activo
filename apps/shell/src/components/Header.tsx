@@ -1,5 +1,6 @@
 import { PlatformLogo } from '@/components/PlatformLogo'
 import { UniversalNav } from '@/components/UniversalNav'
+import { LoginLink } from '@/components/LoginLink'
 
 type NavTenant = {
   slug: string
@@ -14,8 +15,6 @@ type HeaderProps = {
   currentTenantSlug: string | null
 }
 
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? 'http://localhost:3002'
-
 /**
  * Header universal fijo — visible en todas las páginas.
  * Contiene el logo de la plataforma, botón de acceso al panel,
@@ -28,12 +27,7 @@ export function Header({ tenants, currentTenantSlug }: HeaderProps) {
         <PlatformLogo />
 
         <div className="flex items-center gap-2">
-          <a
-            href={`${DASHBOARD_URL}/login`}
-            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-          >
-            Acceder
-          </a>
+          <LoginLink />
           <UniversalNav tenants={tenants} currentTenantSlug={currentTenantSlug} />
         </div>
       </div>
