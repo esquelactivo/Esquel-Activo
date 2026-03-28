@@ -96,7 +96,7 @@ export default async function HomePage() {
   const tenants = await getAllTenants()
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-white px-4 pt-[72px]">
+    <main className="flex min-h-screen flex-col items-center bg-white px-4 pt-24">
       {/* Carrusel de comercios — estilo historias */}
       <div className="w-full max-w-2xl">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
