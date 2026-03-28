@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@esquel-activo/db'
 import { BottomNav, Sidebar } from '@/components/BottomNav'
+import { ShellLink } from '@/components/ShellLink'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -25,13 +26,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
       style={{ '--color-primary': tenant?.primaryColor ?? '#0f2c32' } as React.CSSProperties}
     >
       {/* Sidebar — solo desktop */}
-      <Sidebar tenantName={tenantName} logoUrl={tenant?.logoUrl ?? null} />
+      <Sidebar tenantName={tenantName} logoUrl={tenant?.logoUrl ?? null} tenantSlug={tenantSlug ?? ''} />
 
       {/* Contenido principal */}
       <main className="flex-1 overflow-x-hidden pb-20 md:pb-0">
         {/* Header mobile */}
         <div className="sticky top-0 z-40 border-b border-gray-100 bg-white px-4 py-3 md:hidden">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between">
             {tenant?.logoUrl ? (
               <img
                 src={tenant.logoUrl}
@@ -41,6 +42,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             ) : (
               <p className="text-sm font-bold text-gray-900">{tenantName}</p>
             )}
+            <ShellLink tenantSlug={tenantSlug ?? ''} />
           </div>
         </div>
 

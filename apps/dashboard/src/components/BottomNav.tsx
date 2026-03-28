@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import { ShellLink } from '@/components/ShellLink'
 
 const NAV_ITEMS = [
   {
@@ -68,7 +69,7 @@ export function BottomNav() {
 /**
  * Sidebar lateral — visible solo en desktop.
  */
-export function Sidebar({ tenantName, logoUrl }: { tenantName: string; logoUrl: string | null }) {
+export function Sidebar({ tenantName, logoUrl, tenantSlug }: { tenantName: string; logoUrl: string | null; tenantSlug: string }) {
   const pathname = usePathname()
 
   return (
@@ -114,8 +115,9 @@ export function Sidebar({ tenantName, logoUrl }: { tenantName: string; logoUrl: 
         })}
       </nav>
 
-      {/* Cerrar sesión — al fondo del sidebar */}
-      <div className="mt-auto border-t border-gray-100 p-3">
+      {/* Footer del sidebar */}
+      <div className="mt-auto border-t border-gray-100 p-3 flex flex-col gap-1">
+        <ShellLink tenantSlug={tenantSlug} />
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
