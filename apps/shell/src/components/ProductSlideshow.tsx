@@ -47,10 +47,10 @@ export function ProductSlideshow({ products }: { products: FeaturedProduct[] }) 
             <img
               src={p.imageUrls[0]}
               alt={p.name}
-              className="h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-primary/80 to-primary" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary" />
           )}
 
           {/* Overlay degradado */}
