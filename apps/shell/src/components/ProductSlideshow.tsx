@@ -26,7 +26,7 @@ export function ProductSlideshow({ products }: { products: FeaturedProduct[] }) 
 
   if (products.length === 0) return null
 
-  const slide = products[current]
+  const slide = products[current] ?? products[0]!
 
   return (
     <div
