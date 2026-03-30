@@ -5,7 +5,20 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "DATABASE_URL",
+        "AUTH_SECRET",
+        "AUTH_URL",
+        "NEXTAUTH_SECRET",
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_API_SECRET",
+        "NEXT_PUBLIC_PLATFORM_DOMAIN",
+        "NEXT_PUBLIC_DASHBOARD_URL",
+        "NEXT_PUBLIC_SHELL_URL",
+        "NEXT_PUBLIC_MARKETPLACE_URL"
+      ]
     },
     "dev": {
       "cache": false,

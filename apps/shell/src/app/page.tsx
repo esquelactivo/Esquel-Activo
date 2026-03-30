@@ -77,10 +77,26 @@ export default async function HomePage() {
     if (uncategorized.length > 0) sections.push({ categoryName: 'Otros', sortOrder: 999, products: uncategorized })
 
     // Serializar Decimal → string (no se puede pasar Decimal a Client Components)
-    const featured = featuredRaw.map((p) => ({ ...p, price: p.price.toString(), discountPrice: p.discountPrice?.toString() ?? null }))
+    const featured = featuredRaw.map((p) => ({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      price: p.price.toString(),
+      discountPrice: p.discountPrice?.toString() ?? null,
+      imageUrls: p.imageUrls,
+    }))
     const serializedSections = sections.map((s) => ({
-      ...s,
-      products: s.products.map((p) => ({ ...p, price: p.price.toString(), discountPrice: p.discountPrice?.toString() ?? null })),
+      categoryName: s.categoryName,
+      sortOrder: s.sortOrder,
+      products: s.products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        price: p.price.toString(),
+        discountPrice: p.discountPrice?.toString() ?? null,
+        imageUrls: p.imageUrls,
+        category: p.category,
+      })),
     }))
 
     return (
