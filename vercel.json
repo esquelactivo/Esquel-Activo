@@ -1,0 +1,6 @@
+{
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm turbo build --filter=@esquel-activo/shell",
+  "outputDirectory": "apps/shell/.next",
+  "framework": "nextjs"
+}
