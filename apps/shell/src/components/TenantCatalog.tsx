@@ -32,7 +32,7 @@ type Section = {
 interface TenantCatalogProps {
   featuredProducts: FeaturedProduct[]
   sections: Section[]
-  tenantWhatsapp?: string | null
+  tenantWhatsapp?: string | null | undefined
 }
 
 export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: TenantCatalogProps) {
@@ -105,7 +105,7 @@ export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: Te
       {selected && (
         <ProductDrawer
           product={selected}
-          tenantWhatsapp={tenantWhatsapp}
+          tenantWhatsapp={tenantWhatsapp ?? null}
           onClose={() => setSelected(null)}
         />
       )}
