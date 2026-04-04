@@ -1,20 +1,23 @@
 import type { NextConfig } from 'next'
+import path from 'path'
 
 const nextConfig: NextConfig = {
   // Permite importar componentes del package @esquel-activo/ui
   transpilePackages: ['@esquel-activo/ui', '@esquel-activo/tenant-engine'],
 
+  // Necesario para que Next.js encuentre el binario de Prisma en el monorepo
+  experimental: {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+  },
+
   images: {
-    // Dominios permitidos para next/image (agregar CDN en producción)
     remotePatterns: [
       { protocol: 'https', hostname: '**.supabase.co' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
-    // Formatos modernos — crítico para performance en zonas con 4G (Blueprint §8)
     formats: ['image/avif', 'image/webp'],
   },
 
-  // Cabeceras de seguridad
   async headers() {
     return [
       {

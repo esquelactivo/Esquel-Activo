@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import path from 'path'
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@esquel-activo/ui', '@esquel-activo/tenant-engine'],
@@ -10,6 +11,7 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
   experimental: {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
     serverActions: {
       bodySizeLimit: '5mb',
     },
