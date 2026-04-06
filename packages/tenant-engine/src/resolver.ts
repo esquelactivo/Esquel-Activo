@@ -14,8 +14,11 @@ import type { TenantConfig, TenantResolutionResult, TenantResolutionSource } fro
 
 const PLATFORM_DOMAIN = process.env.NEXT_PUBLIC_PLATFORM_DOMAIN ?? 'esquel-activo.com.ar'
 
-// Hostnames locales que NO son dominios propios de tenants
+// Hostnames que NO son dominios propios de tenants
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0'])
+
+// Sufijos de plataformas de hosting que no son dominios propios
+const PLATFORM_SUFFIXES = ['.vercel.app', '.netlify.app', '.pages.dev']
 
 /**
  * Extrae el slug del tenant de una URL de request.
@@ -35,12 +38,10 @@ export function extractTenantSlug(
     return { slug: headerTenantId, source: 'header' }
   }
 
-  // 2. Query param en desarrollo (antes que subdominios/dominios propios)
-  if (process.env.NODE_ENV === 'development') {
-    const tenantParam = searchParams.get('tenant')
-    if (tenantParam) {
-      return { slug: tenantParam, source: 'query_param' }
-    }
+  // 2. Query param — funciona en desarrollo y en producción (hasta tener subdominios)
+  const tenantParam = searchParams.get('tenant')
+  if (tenantParam) {
+    return { slug: tenantParam, source: 'query_param' }
   }
 
   // 3. Subdominio de la plataforma
@@ -52,12 +53,13 @@ export function extractTenantSlug(
     return null // Es el dominio principal
   }
 
-  // 4. Dominio propio (excluir hosts locales y el dominio de la plataforma)
+  // 4. Dominio propio (excluir hosts locales, plataforma y dominios de hosting)
   const isLocalHost = LOCAL_HOSTS.has(cleanHostname)
   const isPlatformDomain =
     cleanHostname === PLATFORM_DOMAIN || cleanHostname === `www.${PLATFORM_DOMAIN}`
+  const isHostingDomain = PLATFORM_SUFFIXES.some((suffix) => cleanHostname.endsWith(suffix))
 
-  if (!isLocalHost && !isPlatformDomain) {
+  if (!isLocalHost && !isPlatformDomain && !isHostingDomain) {
     return { slug: cleanHostname, source: 'custom_domain' }
   }
 
