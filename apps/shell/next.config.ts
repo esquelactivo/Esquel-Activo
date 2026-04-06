@@ -2,13 +2,10 @@ import type { NextConfig } from 'next'
 import path from 'path'
 
 const nextConfig: NextConfig = {
-  // Permite importar componentes del package @esquel-activo/ui
   transpilePackages: ['@esquel-activo/ui', '@esquel-activo/tenant-engine'],
 
   // Necesario para que Next.js encuentre el binario de Prisma en el monorepo
-  experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-  },
+  outputFileTracingRoot: path.join(__dirname, '../../'),
 
   images: {
     remotePatterns: [

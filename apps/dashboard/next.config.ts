@@ -10,8 +10,9 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
+  outputFileTracingRoot: path.join(__dirname, '../../'),
+
   experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../../'),
     serverActions: {
       bodySizeLimit: '5mb',
     },
