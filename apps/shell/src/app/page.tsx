@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { unstable_cache } from 'next/cache'
 import { getCurrentTenant } from '@/lib/tenant'
 import { prisma } from '@esquel-activo/db'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
@@ -35,31 +36,43 @@ const PLACEHOLDER_SLIDES = [
   },
 ]
 
-async function getAllTenants() {
-  return prisma.tenant.findMany({
+// Caché de 60 segundos — la lista de comercios no cambia seguido
+const getAllTenants = unstable_cache(
+  () => prisma.tenant.findMany({
     where: { isActive: true },
     select: { slug: true, name: true, brandName: true, logoUrl: true, primaryColor: true },
     orderBy: { name: 'asc' },
-  })
-}
+  }),
+  ['all-tenants'],
+  { revalidate: 60 }
+)
+
+// Caché de 30 segundos por tenant — se invalida al guardar productos
+const getTenantProducts = unstable_cache(
+  async (tenantId: string) => {
+    const [featuredRaw, allProductsRaw] = await Promise.all([
+      prisma.product.findMany({
+        where: { tenantId, isFeatured: true, isActive: true },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, name: true, description: true, price: true, discountPrice: true, imageUrls: true },
+      }),
+      prisma.product.findMany({
+        where: { tenantId, isActive: true },
+        orderBy: { createdAt: 'desc' },
+        include: { category: { select: { id: true, name: true, sortOrder: true } } },
+      }),
+    ])
+    return { featuredRaw, allProductsRaw }
+  },
+  ['tenant-products'],
+  { revalidate: 30 }
+)
 
 export default async function HomePage() {
   const tenant = await getCurrentTenant()
 
   if (tenant) {
-    // Destacados para el slideshow — solo de este tenant
-    const featuredRaw = await prisma.product.findMany({
-      where: { tenantId: tenant.id, isFeatured: true, isActive: true },
-      orderBy: { createdAt: 'desc' },
-      select: { id: true, name: true, description: true, price: true, discountPrice: true, imageUrls: true },
-    })
-
-    // Todos los productos activos del catálogo — solo de este tenant
-    const allProductsRaw = await prisma.product.findMany({
-      where: { tenantId: tenant.id, isActive: true },
-      orderBy: { createdAt: 'desc' },
-      include: { category: { select: { id: true, name: true, sortOrder: true } } },
-    })
+    const { featuredRaw, allProductsRaw } = await getTenantProducts(tenant.id)
 
     // Agrupar por categoría
     const grouped = new Map<string, { categoryName: string; sortOrder: number; products: typeof allProductsRaw }>()

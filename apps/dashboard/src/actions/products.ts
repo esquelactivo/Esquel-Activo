@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { v2 as cloudinary } from 'cloudinary'
 import { auth } from '@/lib/auth'
 import { prisma } from '@esquel-activo/db'
@@ -72,6 +72,7 @@ export async function createProduct(formData: FormData): Promise<{ success: bool
     })
 
     revalidatePath('/dashboard/products')
+    revalidateTag('tenant-products')
     return { success: true }
   } catch (err) {
     console.error('Error creando producto:', err)
