@@ -13,6 +13,7 @@
     "@esquel-activo/db": "workspace:*",
     "@esquel-activo/tenant-engine": "workspace:*",
     "@esquel-activo/ui": "workspace:*",
+    "@prisma/nextjs-monorepo-workaround-plugin": "^0.1.22",
     "next": "^15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
