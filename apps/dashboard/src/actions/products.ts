@@ -36,7 +36,7 @@ async function uploadProductImage(file: File, tenantSlug: string, productSlug: s
 
 export async function createProduct(formData: FormData): Promise<{ success: boolean; error?: string }> {
   const session = await auth()
-  if (!session?.user?.tenantSlug) return { success: false, error: 'No autorizado' }
+  if (!session?.user?.tenantId || !session?.user?.tenantSlug) return { success: false, error: 'No autorizado' }
 
   const name = formData.get('name') as string
   const description = formData.get('description') as string
@@ -58,6 +58,7 @@ export async function createProduct(formData: FormData): Promise<{ success: bool
 
     await prisma.product.create({
       data: {
+        tenantId: session.user.tenantId,
         name,
         slug,
         description: description || null,
@@ -80,7 +81,7 @@ export async function createProduct(formData: FormData): Promise<{ success: bool
 
 export async function updateProduct(id: string, formData: FormData): Promise<{ success: boolean; error?: string }> {
   const session = await auth()
-  if (!session?.user?.tenantSlug) return { success: false, error: 'No autorizado' }
+  if (!session?.user?.tenantId || !session?.user?.tenantSlug) return { success: false, error: 'No autorizado' }
 
   const name = formData.get('name') as string
   const description = formData.get('description') as string
@@ -93,7 +94,10 @@ export async function updateProduct(id: string, formData: FormData): Promise<{ s
   if (!name || !price) return { success: false, error: 'Nombre y precio son requeridos' }
 
   try {
-    const existing = await prisma.product.findUnique({ where: { id } })
+    // Verificar que el producto pertenece a este tenant
+    const existing = await prisma.product.findFirst({
+      where: { id, tenantId: session.user.tenantId },
+    })
     if (!existing) return { success: false, error: 'Producto no encontrado' }
 
     let imageUrls = existing.imageUrls
@@ -125,9 +129,15 @@ export async function updateProduct(id: string, formData: FormData): Promise<{ s
 
 export async function deleteProduct(id: string): Promise<{ success: boolean; error?: string }> {
   const session = await auth()
-  if (!session?.user?.tenantSlug) return { success: false, error: 'No autorizado' }
+  if (!session?.user?.tenantId) return { success: false, error: 'No autorizado' }
 
   try {
+    // Verificar que el producto pertenece a este tenant
+    const existing = await prisma.product.findFirst({
+      where: { id, tenantId: session.user.tenantId },
+    })
+    if (!existing) return { success: false, error: 'Producto no encontrado' }
+
     await prisma.product.delete({ where: { id } })
     revalidatePath('/dashboard/products')
     return { success: true }
@@ -139,7 +149,10 @@ export async function deleteProduct(id: string): Promise<{ success: boolean; err
 
 export async function toggleFeatured(id: string, isFeatured: boolean): Promise<{ success: boolean }> {
   const session = await auth()
-  if (!session?.user?.tenantSlug) return { success: false }
+  if (!session?.user?.tenantId) return { success: false }
+
+  const existing = await prisma.product.findFirst({ where: { id, tenantId: session.user.tenantId } })
+  if (!existing) return { success: false }
 
   await prisma.product.update({ where: { id }, data: { isFeatured } })
   revalidatePath('/dashboard/products')
@@ -148,7 +161,10 @@ export async function toggleFeatured(id: string, isFeatured: boolean): Promise<{
 
 export async function toggleActive(id: string, isActive: boolean): Promise<{ success: boolean }> {
   const session = await auth()
-  if (!session?.user?.tenantSlug) return { success: false }
+  if (!session?.user?.tenantId) return { success: false }
+
+  const existing = await prisma.product.findFirst({ where: { id, tenantId: session.user.tenantId } })
+  if (!existing) return { success: false }
 
   await prisma.product.update({ where: { id }, data: { isActive } })
   revalidatePath('/dashboard/products')

@@ -5,7 +5,7 @@
   <rect x="10" y="11" width="18" height="3.5" rx="1.5" fill="white"/>
   <rect x="10" y="18.25" width="14" height="3.5" rx="1.5" fill="white"/>
   <rect x="10" y="25.5" width="18" height="3.5" rx="1.5" fill="white"/>
-  <!-- Wordmark "Esquel Activo" -->
-  <text x="50" y="16" font-family="system-ui,-apple-system,sans-serif" font-size="13" font-weight="700" fill="#111827">Esquel</text>
-  <text x="50" y="32" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="400" fill="#6b7280">Activo</text>
+  <!-- Wordmark en blanco -->
+  <text x="50" y="16" font-family="system-ui,-apple-system,sans-serif" font-size="13" font-weight="700" fill="white">Esquel</text>
+  <text x="50" y="32" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="400" fill="rgba(255,255,255,0.7)">Activo</text>
 </svg>

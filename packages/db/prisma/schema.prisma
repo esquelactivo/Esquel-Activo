@@ -194,8 +194,9 @@ model VerificationToken {
 /// Categoría de productos del comercio
 model Category {
   id          String  @id @default(cuid())
+  tenantId    String  // ID del tenant propietario (public.Tenant.id)
   name        String
-  slug        String  @unique
+  slug        String
   description String?
   imageUrl    String?
   isActive    Boolean @default(true)
@@ -206,14 +207,17 @@ model Category {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([tenantId, slug])
+  @@index([tenantId])
   @@schema("tenant_template")
 }
 
 /// Producto del comercio
 model Product {
   id          String   @id @default(cuid())
+  tenantId    String   // ID del tenant propietario (public.Tenant.id)
   name        String
-  slug        String   @unique
+  slug        String
   description String?  @db.Text
   imageUrls   String[] // Array de URLs de imágenes
   isActive    Boolean  @default(true)
@@ -236,6 +240,8 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([tenantId, slug])
+  @@index([tenantId])
   @@schema("tenant_template")
 }
 

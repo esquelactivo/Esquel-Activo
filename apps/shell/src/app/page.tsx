@@ -47,16 +47,16 @@ export default async function HomePage() {
   const tenant = await getCurrentTenant()
 
   if (tenant) {
-    // Destacados para el slideshow
+    // Destacados para el slideshow — solo de este tenant
     const featuredRaw = await prisma.product.findMany({
-      where: { isFeatured: true, isActive: true },
+      where: { tenantId: tenant.id, isFeatured: true, isActive: true },
       orderBy: { createdAt: 'desc' },
       select: { id: true, name: true, description: true, price: true, discountPrice: true, imageUrls: true },
     })
 
-    // Todos los productos activos del catálogo
+    // Todos los productos activos del catálogo — solo de este tenant
     const allProductsRaw = await prisma.product.findMany({
-      where: { isActive: true },
+      where: { tenantId: tenant.id, isActive: true },
       orderBy: { createdAt: 'desc' },
       include: { category: { select: { id: true, name: true, sortOrder: true } } },
     })
