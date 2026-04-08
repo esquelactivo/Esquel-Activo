@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export function LoginForm() {
   const router = useRouter()
@@ -18,11 +21,7 @@ export function LoginForm() {
     const email = form.get('email') as string
     const password = form.get('password') as string
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
+    const result = await signIn('credentials', { email, password, redirect: false })
 
     if (result?.error) {
       setError('Email o contraseña incorrectos')
@@ -39,32 +38,26 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
+          <Label htmlFor="email">Email</Label>
+          <Input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
             required
             placeholder="tu@email.com"
-            className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="text-sm font-medium text-gray-700">
-            Contraseña
-          </label>
-          <input
+          <Label htmlFor="password">Contraseña</Label>
+          <Input
             id="password"
             name="password"
             type="password"
             autoComplete="current-password"
             required
             placeholder="••••••••"
-            className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
         </div>
 
@@ -72,13 +65,9 @@ export function LoginForm() {
           <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 flex items-center justify-center rounded-xl bg-primary py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-        >
+        <Button type="submit" disabled={loading} className="mt-2 w-full">
           {loading ? 'Ingresando...' : 'Ingresar'}
-        </button>
+        </Button>
       </form>
     </div>
   )
