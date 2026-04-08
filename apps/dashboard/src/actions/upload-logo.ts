@@ -6,9 +6,9 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@esquel-activo/db'
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
 })
 
 export async function uploadLogo(formData: FormData): Promise<{ success: boolean; error?: string }> {

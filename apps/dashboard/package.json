@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@auth/core": "^0.34.3",
     "@esquel-activo/db": "workspace:*",
     "@esquel-activo/tenant-engine": "workspace:*",
     "@esquel-activo/ui": "workspace:*",

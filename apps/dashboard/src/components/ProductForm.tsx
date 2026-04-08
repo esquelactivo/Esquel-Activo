@@ -31,7 +31,7 @@ type Product = {
 
 interface ProductFormProps {
   categories: Category[]
-  product?: Product
+  product: Product | undefined
   onClose: () => void
 }
 

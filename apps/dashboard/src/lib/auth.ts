@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth'
+import NextAuth, { type NextAuthResult } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@esquel-activo/db'
 import { compare } from 'bcryptjs'
@@ -11,7 +11,7 @@ import { z } from 'zod'
  * La sesión incluye el tenant del usuario para que cada propietario
  * solo vea los datos de su comercio.
  */
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const authResult: NextAuthResult = NextAuth({
   session: { strategy: 'jwt' },
 
   pages: {
@@ -78,3 +78,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 })
+
+export const { handlers, auth, signIn, signOut } = authResult

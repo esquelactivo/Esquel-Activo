@@ -34,15 +34,15 @@ export function ProductList({ products, categories }: ProductListProps) {
 
   function handleDelete(id: string) {
     if (!confirm('¿Eliminar este producto?')) return
-    startTransition(() => deleteProduct(id))
+    startTransition(async () => { await deleteProduct(id) })
   }
 
   function handleToggleFeatured(id: string, current: boolean) {
-    startTransition(() => toggleFeatured(id, !current))
+    startTransition(async () => { await toggleFeatured(id, !current) })
   }
 
   function handleToggleActive(id: string, current: boolean) {
-    startTransition(() => toggleActive(id, !current))
+    startTransition(async () => { await toggleActive(id, !current) })
   }
 
   return (
