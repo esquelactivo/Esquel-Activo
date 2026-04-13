@@ -3,20 +3,16 @@ import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@esquel-activo/db'
 import { compare } from 'bcryptjs'
 import { z } from 'zod'
+import { authConfig } from './auth.config'
 
 /**
- * Auth.js v5 — Configuración de autenticación del Dashboard.
+ * Auth.js v5 — Configuración completa de autenticación del Dashboard.
  *
- * Usa Credentials (email + contraseña) como proveedor principal.
- * La sesión incluye el tenant del usuario para que cada propietario
- * solo vea los datos de su comercio.
+ * Extiende authConfig (usado también por el middleware) y agrega los
+ * providers que requieren Node.js (Credentials con bcryptjs + Prisma).
  */
 const authResult: NextAuthResult = NextAuth({
-  session: { strategy: 'jwt' },
-
-  pages: {
-    signIn: '/login',
-  },
+  ...authConfig,
 
   providers: [
     Credentials({
