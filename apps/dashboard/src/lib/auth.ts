@@ -5,12 +5,6 @@ import { compare } from 'bcryptjs'
 import { z } from 'zod'
 import { authConfig } from './auth.config'
 
-/**
- * Auth.js v5 — Configuración completa de autenticación del Dashboard.
- *
- * Extiende authConfig (usado también por el middleware) y agrega los
- * providers que requieren Node.js (Credentials con bcryptjs + Prisma).
- */
 const authResult: NextAuthResult = NextAuth({
   ...authConfig,
 
@@ -49,9 +43,10 @@ const authResult: NextAuthResult = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
-          tenantId: membership?.tenantId ?? null,
-          tenantSlug: membership?.tenant.slug ?? null,
-          role: membership?.role ?? null,
+          isSuperAdmin: user.isSuperAdmin,
+          tenantId: user.isSuperAdmin ? null : (membership?.tenantId ?? null),
+          tenantSlug: user.isSuperAdmin ? null : (membership?.tenant.slug ?? null),
+          role: user.isSuperAdmin ? 'SUPER_ADMIN' : (membership?.role ?? null),
         }
       },
     }),
@@ -60,6 +55,7 @@ const authResult: NextAuthResult = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
+        token.isSuperAdmin = (user as any).isSuperAdmin
         token.tenantId = (user as any).tenantId
         token.tenantSlug = (user as any).tenantSlug
         token.role = (user as any).role
@@ -67,6 +63,7 @@ const authResult: NextAuthResult = NextAuth({
       return token
     },
     session({ session, token }) {
+      session.user.isSuperAdmin = token.isSuperAdmin as boolean
       session.user.tenantId = token.tenantId as string | null
       session.user.tenantSlug = token.tenantSlug as string | null
       session.user.role = token.role as string | null

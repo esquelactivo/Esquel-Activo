@@ -2,10 +2,6 @@ import NextAuth from 'next-auth'
 import { authConfig } from '@/lib/auth.config'
 import { NextResponse } from 'next/server'
 
-/**
- * Middleware usando solo authConfig (sin bcryptjs ni @prisma/client).
- * Mantiene el bundle del Edge Function bajo el límite de 1 MB de Vercel.
- */
 const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
@@ -14,14 +10,29 @@ export default auth((req) => {
   }
 
   const isLoggedIn = !!req.auth
-  const isLoginPage = req.nextUrl.pathname === '/login'
+  const isSuperAdmin = (req.auth?.user as any)?.isSuperAdmin === true
+  const { pathname } = req.nextUrl
+
+  const isLoginPage = pathname === '/login'
+  const isAdminRoute = pathname.startsWith('/admin')
+  const isDashboardRoute = pathname.startsWith('/dashboard')
 
   if (!isLoggedIn && !isLoginPage) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
   if (isLoggedIn && isLoginPage) {
+    return NextResponse.redirect(new URL(isSuperAdmin ? '/admin' : '/dashboard', req.url))
+  }
+
+  // Solo super admin puede acceder a /admin
+  if (isAdminRoute && !isSuperAdmin) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  // Super admin va directo a /admin si intenta ir a /dashboard
+  if (isDashboardRoute && isSuperAdmin) {
+    return NextResponse.redirect(new URL('/admin', req.url))
   }
 })
 
