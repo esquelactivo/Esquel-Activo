@@ -11,7 +11,13 @@ type FeaturedProduct = {
   imageUrls: string[]
 }
 
-export function ProductSlideshow({ products }: { products: FeaturedProduct[] }) {
+export function ProductSlideshow({
+  products,
+  onProductClick,
+}: {
+  products: FeaturedProduct[]
+  onProductClick?: (product: FeaturedProduct) => void
+}) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
 
@@ -58,8 +64,11 @@ export function ProductSlideshow({ products }: { products: FeaturedProduct[] }) 
         </div>
       ))}
 
-      {/* Contenido del slide actual */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+      {/* Contenido del slide actual — clickeable si hay handler */}
+      <div
+        className={`absolute bottom-0 left-0 right-0 p-4 md:p-6 ${onProductClick ? 'cursor-pointer' : ''}`}
+        onClick={onProductClick ? () => onProductClick(slide) : undefined}
+      >
         <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Destacado</p>
         <h3 className="mt-1 text-lg font-bold text-white md:text-2xl">{slide.name}</h3>
         {slide.description && (

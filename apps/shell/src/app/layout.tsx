@@ -14,6 +14,9 @@ import { getTenantCssVars } from '@esquel-activo/tenant-engine'
 import { prisma } from '@esquel-activo/db'
 import { getCurrentTenant } from '@/lib/tenant'
 import { Header } from '@/components/Header'
+import { CartProvider } from '@/context/CartContext'
+import { NavProvider } from '@/context/NavContext'
+import { CartShell } from '@/components/CartShell'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -71,8 +74,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {tenant?.faviconUrl && <link rel="icon" href={tenant.faviconUrl} />}
       </head>
       <body className="min-h-screen">
-        <Header tenants={navTenants} currentTenantSlug={tenant?.slug ?? null} />
-        {children}
+        <CartProvider>
+          <NavProvider tenants={navTenants} currentTenantSlug={tenant?.slug ?? null}>
+            <Header tenants={navTenants} currentTenantSlug={tenant?.slug ?? null} />
+            {children}
+            <CartShell tenantWhatsapp={tenant?.contactPhone ?? null} />
+          </NavProvider>
+        </CartProvider>
       </body>
     </html>
   )

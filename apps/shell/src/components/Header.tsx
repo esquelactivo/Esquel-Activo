@@ -1,6 +1,7 @@
 import { PlatformLogo } from '@/components/PlatformLogo'
 import { UniversalNav } from '@/components/UniversalNav'
 import { LoginLink } from '@/components/LoginLink'
+import { CartButton } from '@/components/CartButton'
 
 type NavTenant = {
   slug: string
@@ -28,6 +29,7 @@ export function Header({ tenants, currentTenantSlug }: HeaderProps) {
 
         <div className="flex items-center gap-2">
           <LoginLink />
+          <CartButton />
           <UniversalNav tenants={tenants} currentTenantSlug={currentTenantSlug} />
         </div>
       </div>

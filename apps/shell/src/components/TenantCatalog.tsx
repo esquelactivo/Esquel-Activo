@@ -36,14 +36,17 @@ interface TenantCatalogProps {
 }
 
 export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: TenantCatalogProps) {
-  const [selected, setSelected] = useState<Product | null>(null)
+  const [selected, setSelected] = useState<Product | FeaturedProduct | null>(null)
 
   return (
     <>
       {/* Slideshow destacados */}
       {featuredProducts.length > 0 && (
         <div className="mb-8">
-          <ProductSlideshow products={featuredProducts} />
+          <ProductSlideshow
+            products={featuredProducts}
+            onProductClick={(p) => setSelected(p)}
+          />
         </div>
       )}
 
@@ -104,11 +107,12 @@ export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: Te
       {/* Drawer de detalle */}
       {selected && (
         <ProductDrawer
-          product={selected}
+          product={'category' in selected ? selected : { ...selected, category: null }}
           tenantWhatsapp={tenantWhatsapp ?? null}
           onClose={() => setSelected(null)}
         />
       )}
+
     </>
   )
 }
