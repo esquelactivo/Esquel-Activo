@@ -137,6 +137,7 @@ async function main() {
   // USUARIOS PROPIETARIOS
   // ---------------------------------------------------------------------------
   const password = await hash('esquel2024', 10)
+  const adminPassword = await hash('EsquelAdmin2024!', 10)
 
   // Propietario de Reina Mora
   const ownerReinaMora = await prisma.user.upsert({
@@ -156,6 +157,29 @@ async function main() {
   })
 
   console.log(`✅ Usuario creado: ${ownerReinaMora.email} (contraseña: esquel2024)`)
+
+  // ---------------------------------------------------------------------------
+  // ADMIN DE PLATAFORMA — acceso a todos los tenants
+  // ---------------------------------------------------------------------------
+  const platformAdmin = await prisma.user.upsert({
+    where: { email: 'fabri.webmaster@gmail.com' },
+    update: {},
+    create: {
+      email: 'fabri.webmaster@gmail.com',
+      name: 'Fabri Admin',
+      passwordHash: adminPassword,
+      memberships: {
+        create: [
+          { tenantId: reinaMora.id, role: 'OWNER' },
+          { tenantId: merakiSur.id, role: 'OWNER' },
+          { tenantId: limitsAdventure.id, role: 'OWNER' },
+          { tenantId: toros.id, role: 'OWNER' },
+        ],
+      },
+    },
+  })
+
+  console.log(`✅ Admin de plataforma creado: ${platformAdmin.email} (contraseña: EsquelAdmin2024!)`)
   console.log()
   console.log('⚠️  IMPORTANTE: Cambiá la contraseña apenas ingreses al Dashboard.')
   console.log()
