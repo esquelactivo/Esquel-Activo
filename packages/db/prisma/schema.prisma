@@ -111,11 +111,51 @@ model User {
   accounts Account[]
   sessions Session[]
 
-  memberships TenantMembership[]
+  memberships       TenantMembership[]
+  notificationReads NotificationRead[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@schema("public")
+}
+
+/// Notificación de plataforma enviada por el super admin
+model Notification {
+  id         String             @id @default(cuid())
+  title      String
+  body       String             @db.Text
+  imageUrl   String?
+  targetType NotificationTarget
+  tenantId   String?
+  userId     String?
+  createdAt  DateTime           @default(now())
+
+  reads NotificationRead[]
+
+  @@schema("public")
+}
+
+enum NotificationTarget {
+  ALL        // Todos los usuarios
+  CLIENTS    // Solo clientes (sin memberships de comercio)
+  BUSINESSES // Solo comercios (con memberships)
+  TENANT     // Un comercio específico
+  USER       // Un usuario específico
+
+  @@schema("public")
+}
+
+model NotificationRead {
+  id             String   @id @default(cuid())
+  notificationId String
+  userId         String
+  readAt         DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
   @@schema("public")
 }
 

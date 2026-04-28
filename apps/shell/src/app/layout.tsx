@@ -1,22 +1,14 @@
-/**
- * Root Layout — Shell Orchestrator
- *
- * Este layout es el "padre" de todas las páginas del shell.
- * Su responsabilidad principal:
- *   1. Resolver el tenant actual
- *   2. Inyectar las CSS Variables del tema (white-label)
- *   3. Generar el <head> dinámico (PWA manifest, favicon, título)
- *   4. Renderizar el menú universal (siempre visible)
- */
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { getTenantCssVars } from '@esquel-activo/tenant-engine'
 import { prisma } from '@esquel-activo/db'
 import { getCurrentTenant } from '@/lib/tenant'
+import { auth } from '@/lib/auth'
 import { Header } from '@/components/Header'
 import { CartProvider } from '@/context/CartContext'
 import { NavProvider } from '@/context/NavContext'
 import { CartShell } from '@/components/CartShell'
+import { BottomTabs } from '@/components/BottomTabs'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -37,31 +29,23 @@ export const viewport: Viewport = {
   ],
 }
 
-/**
- * Trae todos los tenants activos para el menú universal.
- * Usa cache de React para que una sola request no haga queries duplicados.
- */
 async function getNavTenants() {
   return prisma.tenant.findMany({
     where: { isActive: true },
-    select: {
-      slug: true,
-      name: true,
-      brandName: true,
-      logoUrl: true,
-      primaryColor: true,
-    },
+    select: { slug: true, name: true, brandName: true, logoUrl: true, primaryColor: true },
     orderBy: { name: 'asc' },
   })
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [tenant, navTenants] = await Promise.all([
+  const [tenant, navTenants, session] = await Promise.all([
     getCurrentTenant(),
     getNavTenants(),
+    auth(),
   ])
 
   const cssVars = tenant ? getTenantCssVars(tenant) : {}
+  const isLoggedIn = !!session?.user
 
   return (
     <html
@@ -73,12 +57,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="manifest" href="/api/manifest" />
         {tenant?.faviconUrl && <link rel="icon" href={tenant.faviconUrl} />}
       </head>
-      <body className="min-h-screen">
+      <body className={`min-h-screen ${isLoggedIn ? 'pb-16' : ''}`}>
         <CartProvider>
           <NavProvider tenants={navTenants} currentTenantSlug={tenant?.slug ?? null}>
-            <Header tenants={navTenants} currentTenantSlug={tenant?.slug ?? null} />
+            <Header tenants={navTenants} currentTenantSlug={tenant?.slug ?? null} isLoggedIn={isLoggedIn} />
             {children}
             <CartShell tenantWhatsapp={tenant?.contactPhone ?? null} />
+            {isLoggedIn && session.user && (
+              <BottomTabs session={{ user: { name: session.user.name, email: session.user.email, image: session.user.image } }} />
+            )}
           </NavProvider>
         </CartProvider>
       </body>
