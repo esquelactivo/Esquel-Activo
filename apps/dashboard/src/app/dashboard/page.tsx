@@ -21,7 +21,7 @@ export default async function DashboardHomePage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-gray-900">Buen día 👋</h1>
-        <p className="mt-0.5 text-sm text-gray-500">{tenant?.brandName ?? tenant?.name}</p>
+        <p className="mt-0.5 text-sm text-gray-500">{session?.user?.name ?? tenant?.brandName ?? tenant?.name}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
