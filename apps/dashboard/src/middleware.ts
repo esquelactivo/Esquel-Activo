@@ -9,6 +9,10 @@ import { NextResponse } from 'next/server'
 const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
+  if (req.nextUrl.pathname.startsWith('/api/setup')) {
+    return NextResponse.next()
+  }
+
   const isLoggedIn = !!req.auth
   const isLoginPage = req.nextUrl.pathname === '/login'
 
