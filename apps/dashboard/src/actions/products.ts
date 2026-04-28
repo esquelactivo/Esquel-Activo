@@ -53,6 +53,9 @@ export async function createProduct(formData: FormData): Promise<{ success: bool
   try {
     let imageUrl: string | null = null
     if (imageFile && imageFile.size > 0) {
+      if (!process.env.CLOUDINARY_CLOUD_NAME) {
+        return { success: false, error: 'Las variables de Cloudinary no están configuradas en el servidor.' }
+      }
       imageUrl = await uploadProductImage(imageFile, session.user.tenantSlug, slug)
     }
 
