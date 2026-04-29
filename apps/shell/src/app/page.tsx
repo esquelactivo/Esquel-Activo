@@ -114,6 +114,7 @@ export default async function HomePage() {
       price: p.price.toString(),
       discountPrice: p.discountPrice?.toString() ?? null,
       imageUrls: p.imageUrls,
+      category: null,
       variants: serializeVariants(p.variants),
     }))
     const serializedSections = sections.map((s) => ({

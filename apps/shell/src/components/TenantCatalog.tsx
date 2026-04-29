@@ -17,16 +17,6 @@ type Product = {
   variants: Variant[]
 }
 
-type FeaturedProduct = {
-  id: string
-  name: string
-  description: string | null
-  price: string
-  discountPrice: string | null
-  imageUrls: string[]
-  variants: Variant[]
-}
-
 type Section = {
   categoryName: string
   sortOrder: number
@@ -34,7 +24,7 @@ type Section = {
 }
 
 interface TenantCatalogProps {
-  featuredProducts: FeaturedProduct[]
+  featuredProducts: Product[]
   sections: Section[]
   tenantWhatsapp?: string | null | undefined
 }
@@ -111,7 +101,7 @@ export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: Te
       {/* Drawer de detalle */}
       {selected && (
         <ProductDrawer
-          product={'category' in selected ? selected : { ...selected, category: null, variants: selected.variants }}
+          product={selected}
           tenantWhatsapp={tenantWhatsapp ?? null}
           onClose={() => setSelected(null)}
         />
