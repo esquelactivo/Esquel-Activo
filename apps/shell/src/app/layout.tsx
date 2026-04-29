@@ -64,7 +64,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
             <CartShell tenantWhatsapp={tenant?.contactPhone ?? null} />
             {isLoggedIn && session.user && (
-              <BottomTabs session={{ user: { name: session.user.name, email: session.user.email, image: session.user.image } }} />
+              <BottomTabs session={{ user: { name: session.user.name ?? null, email: session.user.email ?? null, image: session.user.image ?? null } }} />
             )}
           </NavProvider>
         </CartProvider>
