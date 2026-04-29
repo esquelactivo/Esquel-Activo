@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { ProductForm } from './ProductForm'
+import { useTransition } from 'react'
+import Link from 'next/link'
 import { deleteProduct, toggleFeatured, toggleActive } from '@/actions/products'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2, Plus } from 'lucide-react'
-
-type Category = { id: string; name: string }
 
 type Product = {
   id: string
@@ -24,12 +22,9 @@ type Product = {
 
 interface ProductListProps {
   products: Product[]
-  categories: Category[]
 }
 
-export function ProductList({ products, categories }: ProductListProps) {
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [showForm, setShowForm] = useState(false)
+export function ProductList({ products }: ProductListProps) {
   const [isPending, startTransition] = useTransition()
 
   function handleDelete(id: string) {
@@ -45,11 +40,6 @@ export function ProductList({ products, categories }: ProductListProps) {
     startTransition(async () => { await toggleActive(id, !current) })
   }
 
-  function handleClose() {
-    setShowForm(false)
-    setEditingProduct(null)
-  }
-
   return (
     <>
       {/* Header */}
@@ -57,9 +47,11 @@ export function ProductList({ products, categories }: ProductListProps) {
         <p className="text-sm text-muted-foreground">
           {products.length} producto{products.length !== 1 ? 's' : ''}
         </p>
-        <Button onClick={() => { setEditingProduct(null); setShowForm(true) }} size="sm">
-          <Plus className="h-4 w-4" />
-          Nuevo producto
+        <Button asChild size="sm">
+          <Link href="/dashboard/products/new">
+            <Plus className="h-4 w-4" />
+            Nuevo producto
+          </Link>
         </Button>
       </div>
 
@@ -91,10 +83,7 @@ export function ProductList({ products, categories }: ProductListProps) {
 
               {/* Info */}
               <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="truncate text-sm font-semibold text-gray-900">{p.name}</p>
-                  {p.isFeatured && <span className="shrink-0 text-sm">⭐</span>}
-                </div>
+                <p className="truncate text-sm font-semibold text-gray-900">{p.name}</p>
                 {p.category && (
                   <p className="text-xs text-muted-foreground">{p.category.name}</p>
                 )}
@@ -129,14 +118,10 @@ export function ProductList({ products, categories }: ProductListProps) {
                   >
                     ⭐
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => { setEditingProduct(p); setShowForm(true) }}
-                    title="Editar producto"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                    <Link href={`/dashboard/products/${p.id}/edit`} title="Editar producto">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Link>
                   </Button>
                   <Button
                     variant="ghost"
@@ -160,15 +145,6 @@ export function ProductList({ products, categories }: ProductListProps) {
             </div>
           ))}
         </div>
-      )}
-
-      {showForm && (
-        <ProductForm
-          categories={categories}
-          product={editingProduct ?? undefined}
-          onClose={handleClose}
-          onCreated={handleClose}
-        />
       )}
     </>
   )
