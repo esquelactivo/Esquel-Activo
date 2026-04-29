@@ -203,6 +203,9 @@ importers:
       '@esquel-activo/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
       '@types/node':
         specifier: ^22.10.5
         version: 22.19.15
