@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useCart } from '@/context/CartContext'
 
 export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null }) {
   const { items, removeItem, updateQuantity, clearCart, total, count, isOpen, closeCart } = useCart()
+  const [sending, setSending] = useState(false)
 
-  // Escape
   useEffect(() => {
     if (!isOpen) return
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') closeCart() }
@@ -14,7 +14,6 @@ export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null 
     return () => document.removeEventListener('keydown', onKey)
   }, [isOpen, closeCart])
 
-  // Lock scroll
   useEffect(() => {
     if (!isOpen) return
     document.body.style.overflow = 'hidden'
@@ -23,15 +22,46 @@ export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null 
 
   if (!isOpen) return null
 
-  const whatsappLines = items.map(
-    i => `• ${i.name} x${i.quantity} — $${(i.price * i.quantity).toLocaleString('es-AR')}`
-  ).join('\n')
-  const whatsappMessage = encodeURIComponent(
-    `Hola! Quiero hacer el siguiente pedido:\n${whatsappLines}\n\n*Total: $${total.toLocaleString('es-AR')}*`
-  )
-  const whatsappUrl = tenantWhatsapp
-    ? `https://wa.me/${tenantWhatsapp.replace(/\D/g, '')}?text=${whatsappMessage}`
-    : null
+  function buildWhatsappUrl(orderNumber?: number) {
+    const header = orderNumber ? `Pedido #${orderNumber}\n` : ''
+    const lines = items.map(
+      i => `• ${i.name} x${i.quantity} — $${(i.price * i.quantity).toLocaleString('es-AR')}`
+    ).join('\n')
+    const message = `${header}Hola! Quiero hacer el siguiente pedido:\n${lines}\n\n*Total: $${total.toLocaleString('es-AR')}*`
+    const phone = tenantWhatsapp!.replace(/\D/g, '')
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+  }
+
+  async function handleSendOrder() {
+    if (!tenantWhatsapp || sending) return
+    setSending(true)
+
+    // Abrimos la ventana sincrónicamente para evitar bloqueos del browser
+    const win = window.open('', '_blank')
+
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(i => ({ productId: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+        }),
+      })
+      const data = res.ok ? await res.json() : null
+      const url = buildWhatsappUrl(data?.orderNumber)
+      if (win) win.location.href = url
+      else window.open(url, '_blank')
+      clearCart()
+      closeCart()
+    } catch {
+      // Fallback: igual abrimos WhatsApp aunque no se haya registrado en DB
+      const url = buildWhatsappUrl()
+      if (win) win.location.href = url
+      else window.open(url, '_blank')
+    } finally {
+      setSending(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
@@ -115,16 +145,19 @@ export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null 
               <span className="text-xl font-bold text-gray-900">${total.toLocaleString('es-AR')}</span>
             </div>
 
-            {whatsappUrl ? (
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-2xl bg-green-500 py-4 text-sm font-bold text-white hover:bg-green-600 transition-colors"
+            {tenantWhatsapp ? (
+              <button
+                onClick={handleSendOrder}
+                disabled={sending}
+                className="flex items-center justify-center gap-2 rounded-2xl bg-green-500 py-4 text-sm font-bold text-white hover:bg-green-600 transition-colors disabled:opacity-70"
               >
-                <WhatsAppIcon />
-                Enviar pedido por WhatsApp
-              </a>
+                {sending ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <WhatsAppIcon />
+                )}
+                {sending ? 'Registrando pedido...' : 'Enviar pedido por WhatsApp'}
+              </button>
             ) : (
               <button
                 disabled

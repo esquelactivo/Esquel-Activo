@@ -308,9 +308,10 @@ model ProductVariant {
 /// Orden de compra dentro de un comercio
 /// Una "Intención de Compra" (Blueprint §6) crea una orden en estado PENDING
 model Order {
-  id     String      @id @default(cuid())
-  number Int         @default(autoincrement()) // Número legible del pedido
-  status OrderStatus @default(PENDING)
+  id       String      @id @default(cuid())
+  number   Int         @default(autoincrement()) // Número legible del pedido
+  status   OrderStatus @default(PENDING)
+  tenantId String      // ID del tenant propietario (public.Tenant.id)
 
   // Datos del comprador (puede ser anónimo en Fase 1)
   customerEmail String?
@@ -327,18 +328,17 @@ model Order {
   total    Decimal @db.Decimal(10, 2)
 
   // Mercado Pago (Fase 5)
-  mpPaymentId   String? // ID del pago en MP
-  mpPaymentUrl  String? // Link de pago
+  mpPaymentId  String?
+  mpPaymentUrl String?
 
   items OrderItem[]
 
-  // ID del usuario global que realizó la compra
-  // Es nullable porque en Fase 1 puede comprar sin cuenta
   globalUserId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([tenantId])
   @@schema("tenant_template")
 }
 
@@ -356,16 +356,16 @@ enum OrderStatus {
 
 /// Ítem dentro de una orden
 model OrderItem {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   orderId   String
   productId String
-  variantId String
+  variantId String?
   quantity  Int
-  unitPrice Decimal @db.Decimal(10, 2) // Precio al momento de la compra (histórico)
+  unitPrice Decimal @db.Decimal(10, 2)
 
-  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product        @relation(fields: [productId], references: [id])
-  variant ProductVariant @relation(fields: [variantId], references: [id])
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@schema("tenant_template")
 }
