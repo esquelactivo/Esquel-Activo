@@ -42,6 +42,7 @@ export const getCurrentTenant = cache(async (): Promise<TenantConfig | null> => 
       address: true,
       instagramUrl: true,
       facebookUrl: true,
+      googleBusinessUrl: true,
       latitude: true,
       longitude: true,
       customDomain: true,
