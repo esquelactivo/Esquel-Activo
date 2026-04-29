@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-type FeaturedProduct = {
+type BaseProduct = {
   id: string
   name: string
   description: string | null
@@ -11,12 +11,12 @@ type FeaturedProduct = {
   imageUrls: string[]
 }
 
-export function ProductSlideshow({
+export function ProductSlideshow<T extends BaseProduct>({
   products,
   onProductClick,
 }: {
-  products: FeaturedProduct[]
-  onProductClick?: (product: FeaturedProduct) => void
+  products: T[]
+  onProductClick?: (product: T) => void
 }) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
