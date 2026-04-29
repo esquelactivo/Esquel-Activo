@@ -30,7 +30,7 @@ interface TenantCatalogProps {
 }
 
 export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: TenantCatalogProps) {
-  const [selected, setSelected] = useState<Product | FeaturedProduct | null>(null)
+  const [selected, setSelected] = useState<Product | null>(null)
 
   return (
     <>
