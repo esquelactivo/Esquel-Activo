@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { ProductDrawer } from './ProductDrawer'
 import { ProductSlideshow } from './ProductSlideshow'
 
+type Variant = { id: string; name: string; price: string; stock: number }
+
 type Product = {
   id: string
   name: string
@@ -12,6 +14,7 @@ type Product = {
   discountPrice: string | null
   imageUrls: string[]
   category: { id: string; name: string; sortOrder: number } | null
+  variants: Variant[]
 }
 
 type FeaturedProduct = {
@@ -21,6 +24,7 @@ type FeaturedProduct = {
   price: string
   discountPrice: string | null
   imageUrls: string[]
+  variants: Variant[]
 }
 
 type Section = {
@@ -107,7 +111,7 @@ export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: Te
       {/* Drawer de detalle */}
       {selected && (
         <ProductDrawer
-          product={'category' in selected ? selected : { ...selected, category: null }}
+          product={'category' in selected ? selected : { ...selected, category: null, variants: selected.variants }}
           tenantWhatsapp={tenantWhatsapp ?? null}
           onClose={() => setSelected(null)}
         />

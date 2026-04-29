@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext'
 export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null }) {
   const { items, removeItem, updateQuantity, clearCart, total, count, isOpen, closeCart } = useCart()
   const [sending, setSending] = useState(false)
+  const [stockError, setStockError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -35,8 +36,8 @@ export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null 
   async function handleSendOrder() {
     if (!tenantWhatsapp || sending) return
     setSending(true)
+    setStockError(null)
 
-    // Abrimos la ventana sincrónicamente para evitar bloqueos del browser
     const win = window.open('', '_blank')
 
     try {
@@ -44,17 +45,28 @@ export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: items.map(i => ({ productId: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+          items: items.map(i => ({
+            productId: i.id,
+            variantId: i.variantId,
+            name: i.name + (i.variantName ? ` (${i.variantName})` : ''),
+            price: i.price,
+            quantity: i.quantity,
+          })),
         }),
       })
-      const data = res.ok ? await res.json() : null
-      const url = buildWhatsappUrl(data?.orderNumber)
+      const data = await res.json()
+      if (!res.ok) {
+        if (win) win.close()
+        setStockError(data.error ?? 'Error al procesar el pedido')
+        setSending(false)
+        return
+      }
+      const url = buildWhatsappUrl(data.orderNumber)
       if (win) win.location.href = url
       else window.open(url, '_blank')
       clearCart()
       closeCart()
     } catch {
-      // Fallback: igual abrimos WhatsApp aunque no se haya registrado en DB
       const url = buildWhatsappUrl()
       if (win) win.location.href = url
       else window.open(url, '_blank')
@@ -105,26 +117,29 @@ export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null 
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+                    {item.variantName && (
+                      <p className="text-xs text-primary/70 mt-0.5">{item.variantName}</p>
+                    )}
                     <p className="text-xs text-gray-500 mt-0.5">
                       ${item.price.toLocaleString('es-AR')} c/u
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.key, item.quantity - 1)}
                       className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors text-base"
                     >
                       −
                     </button>
                     <span className="w-5 text-center text-sm font-medium">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.key, item.quantity + 1)}
                       className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors text-base"
                     >
                       +
                     </button>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.key)}
                       className="ml-1 text-red-400 hover:text-red-600 transition-colors text-xs"
                       aria-label="Eliminar"
                     >
@@ -144,6 +159,10 @@ export function CartDrawer({ tenantWhatsapp }: { tenantWhatsapp?: string | null 
               <span className="text-sm font-medium text-gray-600">Total</span>
               <span className="text-xl font-bold text-gray-900">${total.toLocaleString('es-AR')}</span>
             </div>
+
+            {stockError && (
+              <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-600">{stockError}</p>
+            )}
 
             {tenantWhatsapp ? (
               <button

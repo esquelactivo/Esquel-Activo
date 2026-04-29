@@ -64,7 +64,7 @@ export default async function OrdersPage() {
         )}
       </div>
 
-      <OrdersRefresher />
+      <OrdersRefresher pendingCount={pendingCount} />
 
       {serialized.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl bg-white py-16 text-center shadow-sm ring-1 ring-gray-100">

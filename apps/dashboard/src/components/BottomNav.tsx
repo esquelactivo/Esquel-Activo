@@ -6,30 +6,11 @@ import { signOut } from 'next-auth/react'
 import { ShellLink } from '@/components/ShellLink'
 
 const NAV_ITEMS = [
-  {
-    href: '/dashboard',
-    label: 'Inicio',
-    icon: HomeIcon,
-    exact: true,
-  },
-  {
-    href: '/dashboard/products',
-    label: 'Productos',
-    icon: ProductsIcon,
-    exact: false,
-  },
-  {
-    href: '/dashboard/orders',
-    label: 'Pedidos',
-    icon: OrdersIcon,
-    exact: false,
-  },
-  {
-    href: '/dashboard/settings',
-    label: 'Config',
-    icon: SettingsIcon,
-    exact: false,
-  },
+  { href: '/dashboard',            label: 'Inicio',      icon: HomeIcon,       exact: true  },
+  { href: '/dashboard/products',   label: 'Productos',   icon: ProductsIcon,   exact: false },
+  { href: '/dashboard/categories', label: 'Categorías',  icon: CategoriesIcon, exact: false },
+  { href: '/dashboard/orders',     label: 'Pedidos',     icon: OrdersIcon,     exact: false },
+  { href: '/dashboard/settings',   label: 'Config',      icon: SettingsIcon,   exact: false },
 ]
 
 /**
@@ -168,6 +149,15 @@ function OrdersIcon({ active }: { active: boolean }) {
       <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
       <rect x="9" y="3" width="6" height="4" rx="1" fill={active ? 'currentColor' : 'none'} />
       <path d="M9 12h6M9 16h4" />
+    </svg>
+  )
+}
+
+function CategoriesIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" fill={active ? 'currentColor' : 'none'} />
+      <line x1="7" y1="7" x2="7.01" y2="7" stroke="white" strokeWidth="2.5" />
     </svg>
   )
 }

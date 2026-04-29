@@ -5,6 +5,8 @@ import { useCart } from '@/context/CartContext'
 import { useNav } from '@/context/NavContext'
 import { UniversalNav } from './UniversalNav'
 
+type Variant = { id: string; name: string; price: string; stock: number }
+
 type Product = {
   id: string
   name: string
@@ -13,6 +15,7 @@ type Product = {
   discountPrice: string | number | null
   imageUrls: string[]
   category: { name: string } | null
+  variants: Variant[]
 }
 
 interface ProductDrawerProps {
@@ -26,51 +29,65 @@ export function ProductDrawer({ product, tenantWhatsapp, onClose }: ProductDrawe
   const { tenants, currentTenantSlug } = useNav()
   const closedByPopState = useRef(false)
   const [imgIndex, setImgIndex] = useState(0)
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null)
+
+  const hasVariants = product.variants.length > 0
 
   // Back button support
   useEffect(() => {
     history.pushState({ drawer: true }, '')
-    const onPop = () => {
-      closedByPopState.current = true
-      onClose()
-    }
+    const onPop = () => { closedByPopState.current = true; onClose() }
     window.addEventListener('popstate', onPop)
     return () => {
       window.removeEventListener('popstate', onPop)
-      if (!closedByPopState.current && (history.state as any)?.drawer) {
-        history.back()
-      }
+      if (!closedByPopState.current && (history.state as any)?.drawer) history.back()
     }
   }, [onClose])
 
-  // Escape key
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  const price = Number(product.price)
-  const discountPrice = product.discountPrice ? Number(product.discountPrice) : null
-  const displayPrice = discountPrice ?? price
-  const cartItem = items.find(i => i.id === product.id)
+  const basePrice = Number(product.price)
+  const baseDiscount = product.discountPrice ? Number(product.discountPrice) : null
+
+  // Precio a mostrar: variante seleccionada > descuento > precio base
+  const displayPrice = selectedVariant
+    ? Number(selectedVariant.price)
+    : (baseDiscount ?? basePrice)
+
+  // Precio mínimo entre variantes (para "Desde $X")
+  const minVariantPrice = hasVariants
+    ? Math.min(...product.variants.map(v => Number(v.price)))
+    : null
+
+  // Cart key para este producto + variante
+  const cartKey = `${product.id}:${selectedVariant?.id ?? ''}`
+  const cartItem = items.find(i => i.key === cartKey)
+
+  const canAddToCart = !hasVariants || selectedVariant !== null
+  const isOutOfStock = selectedVariant ? selectedVariant.stock === 0 : false
 
   const whatsappMessage = encodeURIComponent(
-    `Hola! Me interesa: *${product.name}* ($${displayPrice.toLocaleString('es-AR')})`
+    `Hola! Me interesa: *${product.name}*${selectedVariant ? ` (${selectedVariant.name})` : ''} ($${displayPrice.toLocaleString('es-AR')})`
   )
   const whatsappUrl = tenantWhatsapp
     ? `https://wa.me/${tenantWhatsapp.replace(/\D/g, '')}?text=${whatsappMessage}`
     : null
 
   function handleAddToCart() {
+    if (!canAddToCart || isOutOfStock) return
     addItem({
       id: product.id,
+      variantId: selectedVariant?.id ?? null,
+      variantName: selectedVariant?.name ?? null,
       name: product.name,
       price: displayPrice,
       imageUrl: product.imageUrls[0] ?? null,
@@ -79,13 +96,11 @@ export function ProductDrawer({ product, tenantWhatsapp, onClose }: ProductDrawe
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Sheet */}
       <div className="relative w-full max-w-lg flex flex-col rounded-t-3xl bg-white shadow-2xl max-h-[90vh]">
 
-        {/* Header fijo */}
+        {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 shrink-0">
           <button
             onClick={onClose}
@@ -117,9 +132,7 @@ export function ProductDrawer({ product, tenantWhatsapp, onClose }: ProductDrawe
                     <button
                       key={i}
                       onClick={() => setImgIndex(i)}
-                      className={`shrink-0 h-14 w-14 rounded-xl overflow-hidden ring-2 transition-all ${
-                        i === imgIndex ? 'ring-primary' : 'ring-transparent opacity-60'
-                      }`}
+                      className={`shrink-0 h-14 w-14 rounded-xl overflow-hidden ring-2 transition-all ${i === imgIndex ? 'ring-primary' : 'ring-transparent opacity-60'}`}
                     >
                       <img src={url} alt="" className="h-full w-full object-cover" />
                     </button>
@@ -130,54 +143,89 @@ export function ProductDrawer({ product, tenantWhatsapp, onClose }: ProductDrawe
           )}
 
           <div className="px-5 pt-4 pb-6">
-            {/* Categoría */}
             {product.category && (
               <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-400">
                 {product.category.name}
               </p>
             )}
 
-            {/* Nombre */}
             <h2 className="text-xl font-bold text-gray-900">{product.name}</h2>
 
             {/* Precio */}
             <div className="mt-2 flex items-center gap-2">
-              {discountPrice ? (
+              {hasVariants && !selectedVariant ? (
+                <span className="text-2xl font-bold text-gray-900">
+                  Desde ${minVariantPrice!.toLocaleString('es-AR')}
+                </span>
+              ) : baseDiscount && !selectedVariant ? (
                 <>
-                  <span className="text-2xl font-bold text-primary">
-                    ${discountPrice.toLocaleString('es-AR')}
-                  </span>
-                  <span className="text-base text-gray-400 line-through">
-                    ${price.toLocaleString('es-AR')}
-                  </span>
+                  <span className="text-2xl font-bold text-primary">${baseDiscount.toLocaleString('es-AR')}</span>
+                  <span className="text-base text-gray-400 line-through">${basePrice.toLocaleString('es-AR')}</span>
                   <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
-                    -{Math.round((1 - discountPrice / price) * 100)}%
+                    -{Math.round((1 - baseDiscount / basePrice) * 100)}%
                   </span>
                 </>
               ) : (
-                <span className="text-2xl font-bold text-gray-900">
-                  ${price.toLocaleString('es-AR')}
-                </span>
+                <span className="text-2xl font-bold text-gray-900">${displayPrice.toLocaleString('es-AR')}</span>
               )}
             </div>
 
-            {/* Descripción */}
+            {/* Selector de variantes */}
+            {hasVariants && (
+              <div className="mt-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  Elegí una opción
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map(v => {
+                    const outOfStock = v.stock === 0
+                    const isSelected = selectedVariant?.id === v.id
+                    return (
+                      <button
+                        key={v.id}
+                        onClick={() => !outOfStock && setSelectedVariant(isSelected ? null : v)}
+                        disabled={outOfStock}
+                        className={`rounded-xl border px-3.5 py-2 text-sm font-medium transition-all ${
+                          isSelected
+                            ? 'border-primary bg-primary text-white'
+                            : outOfStock
+                              ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 line-through'
+                              : 'border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        {v.name}
+                        {outOfStock && <span className="ml-1 text-[10px]">sin stock</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             {product.description && (
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">{product.description}</p>
+              <p className="mt-4 text-sm leading-relaxed text-gray-600">{product.description}</p>
             )}
           </div>
         </div>
 
-        {/* CTAs fijos al fondo */}
+        {/* CTAs */}
         <div className="border-t border-gray-100 px-5 py-4 flex flex-col gap-2 bg-white shrink-0">
-          {cartItem ? (
+          {hasVariants && !selectedVariant ? (
+            <div className="rounded-2xl bg-gray-50 py-4 text-center text-sm text-gray-400">
+              Seleccioná una opción para agregar al carrito
+            </div>
+          ) : isOutOfStock ? (
+            <div className="rounded-2xl bg-red-50 py-4 text-center text-sm font-medium text-red-500">
+              Sin stock disponible
+            </div>
+          ) : cartItem ? (
             <div className="flex items-center justify-between rounded-2xl bg-primary/10 px-4 py-3">
               <span className="text-sm font-semibold text-primary">
                 En el carrito · ${(cartItem.price * cartItem.quantity).toLocaleString('es-AR')}
               </span>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => updateQuantity(product.id, cartItem.quantity - 1)}
+                  onClick={() => updateQuantity(cartKey, cartItem.quantity - 1)}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-lg font-bold hover:opacity-80 transition-opacity"
                 >
                   −

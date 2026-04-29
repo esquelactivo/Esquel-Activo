@@ -3,7 +3,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 export type CartItem = {
-  id: string
+  key: string           // `${productId}:${variantId ?? ''}`
+  id: string            // productId
+  variantId: string | null
+  variantName: string | null
   name: string
   price: number
   imageUrl: string | null
@@ -12,9 +15,9 @@ export type CartItem = {
 
 type CartContextType = {
   items: CartItem[]
-  addItem: (item: Omit<CartItem, 'quantity'>) => void
-  removeItem: (id: string) => void
-  updateQuantity: (id: string, quantity: number) => void
+  addItem: (item: Omit<CartItem, 'quantity' | 'key'>) => void
+  removeItem: (key: string) => void
+  updateQuantity: (key: string, quantity: number) => void
   clearCart: () => void
   total: number
   count: number
@@ -27,6 +30,19 @@ const CartContext = createContext<CartContextType | null>(null)
 
 const CART_KEY = 'ea_cart'
 
+function migrateItem(i: any): CartItem {
+  return {
+    key: i.key ?? `${i.id}:${i.variantId ?? ''}`,
+    id: i.id,
+    variantId: i.variantId ?? null,
+    variantName: i.variantName ?? null,
+    name: i.name,
+    price: i.price,
+    imageUrl: i.imageUrl ?? null,
+    quantity: i.quantity,
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -35,7 +51,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(CART_KEY)
-      if (stored) setItems(JSON.parse(stored))
+      if (stored) setItems((JSON.parse(stored) as any[]).map(migrateItem))
     } catch {}
     setHydrated(true)
   }, [])
@@ -45,23 +61,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(CART_KEY, JSON.stringify(items))
   }, [items, hydrated])
 
-  function addItem(newItem: Omit<CartItem, 'quantity'>) {
+  function addItem(newItem: Omit<CartItem, 'quantity' | 'key'>) {
+    const key = `${newItem.id}:${newItem.variantId ?? ''}`
     setItems(prev => {
-      const existing = prev.find(i => i.id === newItem.id)
-      if (existing) {
-        return prev.map(i => i.id === newItem.id ? { ...i, quantity: i.quantity + 1 } : i)
-      }
-      return [...prev, { ...newItem, quantity: 1 }]
+      const existing = prev.find(i => i.key === key)
+      if (existing) return prev.map(i => i.key === key ? { ...i, quantity: i.quantity + 1 } : i)
+      return [...prev, { ...newItem, key, quantity: 1 }]
     })
   }
 
-  function removeItem(id: string) {
-    setItems(prev => prev.filter(i => i.id !== id))
+  function removeItem(key: string) {
+    setItems(prev => prev.filter(i => i.key !== key))
   }
 
-  function updateQuantity(id: string, quantity: number) {
-    if (quantity <= 0) { removeItem(id); return }
-    setItems(prev => prev.map(i => i.id === id ? { ...i, quantity } : i))
+  function updateQuantity(key: string, quantity: number) {
+    if (quantity <= 0) { removeItem(key); return }
+    setItems(prev => prev.map(i => i.key === key ? { ...i, quantity } : i))
   }
 
   function clearCart() { setItems([]) }

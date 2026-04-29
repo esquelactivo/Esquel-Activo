@@ -6,6 +6,7 @@ import { deleteProduct, toggleFeatured, toggleActive } from '@/actions/products'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2, Plus } from 'lucide-react'
+import { VariantManager } from '@/app/dashboard/products/VariantManager'
 
 type Category = { id: string; name: string }
 
@@ -30,6 +31,7 @@ interface ProductListProps {
 export function ProductList({ products, categories }: ProductListProps) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [variantProduct, setVariantProduct] = useState<Product | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function handleDelete(id: string) {
@@ -130,6 +132,15 @@ export function ProductList({ products, categories }: ProductListProps) {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-8 w-8 text-gray-400"
+                    onClick={() => setVariantProduct(p)}
+                    title="Gestionar variantes"
+                  >
+                    <span className="text-xs font-bold">V</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8"
                     onClick={() => { setEditingProduct(p); setShowForm(true) }}
                   >
@@ -164,6 +175,14 @@ export function ProductList({ products, categories }: ProductListProps) {
           categories={categories}
           product={editingProduct ?? undefined}
           onClose={() => { setShowForm(false); setEditingProduct(null) }}
+        />
+      )}
+
+      {variantProduct && (
+        <VariantManager
+          productId={variantProduct.id}
+          productName={variantProduct.name}
+          onClose={() => setVariantProduct(null)}
         />
       )}
     </>

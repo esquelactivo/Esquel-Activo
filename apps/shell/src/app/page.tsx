@@ -54,12 +54,26 @@ const getTenantProducts = unstable_cache(
       prisma.product.findMany({
         where: { tenantId, isFeatured: true, isActive: true },
         orderBy: { createdAt: 'desc' },
-        select: { id: true, name: true, description: true, price: true, discountPrice: true, imageUrls: true },
+        select: {
+          id: true, name: true, description: true, price: true, discountPrice: true, imageUrls: true,
+          variants: {
+            where: { isActive: true },
+            orderBy: { price: 'asc' },
+            select: { id: true, name: true, price: true, stock: true },
+          },
+        },
       }),
       prisma.product.findMany({
         where: { tenantId, isActive: true },
         orderBy: { createdAt: 'desc' },
-        include: { category: { select: { id: true, name: true, sortOrder: true } } },
+        include: {
+          category: { select: { id: true, name: true, sortOrder: true } },
+          variants: {
+            where: { isActive: true },
+            orderBy: { price: 'asc' },
+            select: { id: true, name: true, price: true, stock: true },
+          },
+        },
       }),
     ])
     return { featuredRaw, allProductsRaw }
@@ -90,6 +104,9 @@ export default async function HomePage() {
     if (uncategorized.length > 0) sections.push({ categoryName: 'Otros', sortOrder: 999, products: uncategorized })
 
     // Serializar Decimal → string (no se puede pasar Decimal a Client Components)
+    const serializeVariants = (variants: { id: string; name: string; price: { toString(): string }; stock: number }[]) =>
+      variants.map(v => ({ id: v.id, name: v.name, price: v.price.toString(), stock: v.stock }))
+
     const featured = featuredRaw.map((p) => ({
       id: p.id,
       name: p.name,
@@ -97,6 +114,7 @@ export default async function HomePage() {
       price: p.price.toString(),
       discountPrice: p.discountPrice?.toString() ?? null,
       imageUrls: p.imageUrls,
+      variants: serializeVariants(p.variants),
     }))
     const serializedSections = sections.map((s) => ({
       categoryName: s.categoryName,
@@ -109,6 +127,7 @@ export default async function HomePage() {
         discountPrice: p.discountPrice?.toString() ?? null,
         imageUrls: p.imageUrls,
         category: p.category,
+        variants: serializeVariants(p.variants),
       })),
     }))
 
