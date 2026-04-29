@@ -101,7 +101,7 @@ export function HeroSlideshow({ slides, autoPlayMs = 4000 }: HeroSlideshowProps)
       {slides.length > 1 && (
         <button
           onClick={prev}
-          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/50"
+          className="absolute left-2 top-1/3 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/50"
           aria-label="Slide anterior"
         >
           <ChevronLeft />
@@ -112,7 +112,7 @@ export function HeroSlideshow({ slides, autoPlayMs = 4000 }: HeroSlideshowProps)
       {slides.length > 1 && (
         <button
           onClick={next}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/50"
+          className="absolute right-2 top-1/3 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/50"
           aria-label="Siguiente slide"
         >
           <ChevronRight />
