@@ -6,7 +6,6 @@ import { deleteProduct, toggleFeatured, toggleActive } from '@/actions/products'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2, Plus } from 'lucide-react'
-import { VariantManager } from '@/app/dashboard/products/VariantManager'
 
 type Category = { id: string; name: string }
 
@@ -31,7 +30,6 @@ interface ProductListProps {
 export function ProductList({ products, categories }: ProductListProps) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [variantProduct, setVariantProduct] = useState<{ id: string; name: string } | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function handleDelete(id: string) {
@@ -47,6 +45,11 @@ export function ProductList({ products, categories }: ProductListProps) {
     startTransition(async () => { await toggleActive(id, !current) })
   }
 
+  function handleClose() {
+    setShowForm(false)
+    setEditingProduct(null)
+  }
+
   return (
     <>
       {/* Header */}
@@ -54,10 +57,7 @@ export function ProductList({ products, categories }: ProductListProps) {
         <p className="text-sm text-muted-foreground">
           {products.length} producto{products.length !== 1 ? 's' : ''}
         </p>
-        <Button
-          onClick={() => { setEditingProduct(null); setShowForm(true) }}
-          size="sm"
-        >
+        <Button onClick={() => { setEditingProduct(null); setShowForm(true) }} size="sm">
           <Plus className="h-4 w-4" />
           Nuevo producto
         </Button>
@@ -132,17 +132,9 @@ export function ProductList({ products, categories }: ProductListProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-gray-400"
-                    onClick={() => setVariantProduct(p)}
-                    title="Gestionar variantes"
-                  >
-                    <span className="text-xs font-bold">V</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
                     className="h-8 w-8"
                     onClick={() => { setEditingProduct(p); setShowForm(true) }}
+                    title="Editar producto"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
@@ -174,20 +166,8 @@ export function ProductList({ products, categories }: ProductListProps) {
         <ProductForm
           categories={categories}
           product={editingProduct ?? undefined}
-          onClose={() => { setShowForm(false); setEditingProduct(null) }}
-          onCreated={(productId, name) => {
-            setShowForm(false)
-            setEditingProduct(null)
-            setVariantProduct({ id: productId, name })
-          }}
-        />
-      )}
-
-      {variantProduct && (
-        <VariantManager
-          productId={variantProduct.id}
-          productName={variantProduct.name}
-          onClose={() => setVariantProduct(null)}
+          onClose={handleClose}
+          onCreated={handleClose}
         />
       )}
     </>

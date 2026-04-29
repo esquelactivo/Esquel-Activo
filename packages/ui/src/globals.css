@@ -12,7 +12,9 @@
 @theme {
   /* Colores del tenant — sobrescritos dinámicamente desde la DB */
   --color-primary: #1a1a2e;
+  --color-primary-foreground: #ffffff;
   --color-secondary: #e94560;
+  --color-secondary-foreground: #ffffff;
 
   /* Tipografía base */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;

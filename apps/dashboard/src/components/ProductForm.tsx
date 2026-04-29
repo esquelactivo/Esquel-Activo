@@ -36,7 +36,7 @@ interface ProductFormProps {
   categories: Category[]
   product: Product | undefined
   onClose: () => void
-  onCreated?: (productId: string, name: string) => void
+  onCreated?: () => void
 }
 
 export function ProductForm({ categories, product, onClose, onCreated }: ProductFormProps) {
@@ -72,11 +72,7 @@ export function ProductForm({ categories, product, onClose, onCreated }: Product
       } else {
         const result = await createProduct(formData)
         if (result.success) {
-          if (onCreated) {
-            onCreated(result.productId, formData.get('name') as string)
-          } else {
-            onClose()
-          }
+          onCreated ? onCreated() : onClose()
         } else {
           setError(result.error ?? 'Error desconocido')
         }
@@ -241,7 +237,7 @@ export function ProductForm({ categories, product, onClose, onCreated }: Product
 
             {!isEdit && (
               <p className="text-xs text-muted-foreground rounded-xl bg-gray-50 px-3 py-2.5">
-                Podés agregar variantes (talles, sabores, etc.) después de crear el producto.
+                Podés agregar variantes (talles, sabores, etc.) editando el producto una vez creado.
               </p>
             )}
 
