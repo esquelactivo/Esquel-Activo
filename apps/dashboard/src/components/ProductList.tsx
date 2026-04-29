@@ -31,7 +31,7 @@ interface ProductListProps {
 export function ProductList({ products, categories }: ProductListProps) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [variantProduct, setVariantProduct] = useState<Product | null>(null)
+  const [variantProduct, setVariantProduct] = useState<{ id: string; name: string } | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function handleDelete(id: string) {
@@ -175,6 +175,11 @@ export function ProductList({ products, categories }: ProductListProps) {
           categories={categories}
           product={editingProduct ?? undefined}
           onClose={() => { setShowForm(false); setEditingProduct(null) }}
+          onCreated={(productId, name) => {
+            setShowForm(false)
+            setEditingProduct(null)
+            setVariantProduct({ id: productId, name })
+          }}
         />
       )}
 

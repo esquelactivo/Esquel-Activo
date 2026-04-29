@@ -34,7 +34,7 @@ async function uploadProductImage(file: File, tenantSlug: string, productSlug: s
   return result.secure_url
 }
 
-export async function createProduct(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function createProduct(formData: FormData): Promise<{ success: true; productId: string } | { success: false; error: string }> {
   const session = await auth()
   if (!session?.user?.tenantId || !session?.user?.tenantSlug) return { success: false, error: 'No autorizado' }
 
@@ -59,7 +59,7 @@ export async function createProduct(formData: FormData): Promise<{ success: bool
       imageUrl = await uploadProductImage(imageFile, session.user.tenantSlug, slug)
     }
 
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: {
         tenantId: session.user.tenantId,
         name,
@@ -76,7 +76,7 @@ export async function createProduct(formData: FormData): Promise<{ success: bool
 
     revalidatePath('/dashboard/products')
     revalidateTag('tenant-products')
-    return { success: true }
+    return { success: true, productId: product.id }
   } catch (err) {
     console.error('Error creando producto:', err)
     return { success: false, error: 'Error al crear el producto' }

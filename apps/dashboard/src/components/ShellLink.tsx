@@ -1,13 +1,6 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-
 export function ShellLink({ tenantSlug }: { tenantSlug: string }) {
-  const [href, setHref] = useState(`http://localhost:3000/?tenant=${tenantSlug}`)
-
-  useEffect(() => {
-    setHref(`http://${window.location.hostname}:3000/?tenant=${tenantSlug}`)
-  }, [tenantSlug])
+  const shellUrl = process.env.NEXT_PUBLIC_SHELL_URL ?? 'http://localhost:3000'
+  const href = `${shellUrl}?tenant=${tenantSlug}`
 
   return (
     <a
