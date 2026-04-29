@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@esquel-activo/db'
 import { LogoUpload } from '@/components/LogoUpload'
 import { LogoutButton } from '@/components/LogoutButton'
+import { TenantInfoEditor } from './TenantInfoEditor'
 
 export const metadata = { title: 'Configuración' }
 
@@ -14,8 +15,8 @@ export default async function SettingsPage() {
           name: true, brandName: true, slug: true,
           primaryColor: true, secondaryColor: true,
           contactPhone: true, contactEmail: true,
-          address: true, instagramUrl: true,
-          logoUrl: true,
+          address: true, instagramUrl: true, facebookUrl: true,
+          googleBusinessUrl: true, logoUrl: true,
         },
       })
     : null
@@ -41,9 +42,17 @@ export default async function SettingsPage() {
         <InfoRow label="Email" value={tenant?.contactEmail ?? 'No configurado'} />
         <InfoRow label="Dirección" value={tenant?.address ?? 'No configurado'} />
         <InfoRow label="Instagram" value={tenant?.instagramUrl ?? 'No configurado'} />
-        <button className="mt-3 w-full rounded-xl border border-primary py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/5">
-          Editar información — próximamente
-        </button>
+        <InfoRow label="Facebook" value={tenant?.facebookUrl ?? 'No configurado'} />
+        <InfoRow label="Google Business" value={tenant?.googleBusinessUrl ?? 'No configurado'} />
+        <TenantInfoEditor tenant={{
+          brandName: tenant?.brandName ?? null,
+          contactPhone: tenant?.contactPhone ?? null,
+          contactEmail: tenant?.contactEmail ?? null,
+          address: tenant?.address ?? null,
+          instagramUrl: tenant?.instagramUrl ?? null,
+          facebookUrl: tenant?.facebookUrl ?? null,
+          googleBusinessUrl: tenant?.googleBusinessUrl ?? null,
+        }} />
       </Section>
 
       <Section title="Apariencia" icon="🎨">

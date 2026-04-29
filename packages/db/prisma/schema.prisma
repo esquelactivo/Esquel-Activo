@@ -54,8 +54,9 @@ model Tenant {
   address      String?
 
   // Redes sociales
-  instagramUrl String?
-  facebookUrl  String?
+  instagramUrl       String?
+  facebookUrl        String?
+  googleBusinessUrl  String? // URL del perfil de Google Business
 
   // Geolocalización (para mapa en la app)
   latitude  Float?

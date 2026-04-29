@@ -21,6 +21,7 @@ export type TenantConfig = {
   address: string | null
   instagramUrl: string | null
   facebookUrl: string | null
+  googleBusinessUrl: string | null
 
   // Geolocalización
   latitude: number | null

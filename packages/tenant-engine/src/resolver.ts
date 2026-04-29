@@ -86,6 +86,7 @@ export function toTenantConfig(
     address: string | null
     instagramUrl: string | null
     facebookUrl: string | null
+    googleBusinessUrl: string | null
     latitude: number | null
     longitude: number | null
     customDomain: string | null
@@ -110,6 +111,7 @@ export function toTenantConfig(
     address: tenant.address,
     instagramUrl: tenant.instagramUrl,
     facebookUrl: tenant.facebookUrl,
+    googleBusinessUrl: tenant.googleBusinessUrl,
     latitude: tenant.latitude,
     longitude: tenant.longitude,
     features: {

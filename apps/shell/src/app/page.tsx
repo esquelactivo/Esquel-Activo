@@ -139,6 +139,12 @@ export default async function HomePage() {
                     Instagram ↗
                   </a>
                 )}
+                {tenant.googleBusinessUrl && (
+                  <a href={tenant.googleBusinessUrl} target="_blank" rel="noopener noreferrer"
+                    className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600 hover:bg-blue-100">
+                    Google ↗
+                  </a>
+                )}
                 {tenant.latitude && tenant.longitude && (
                   <a href={`https://maps.google.com/?q=${tenant.latitude},${tenant.longitude}`} target="_blank" rel="noopener noreferrer"
                     className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 hover:bg-gray-200">
