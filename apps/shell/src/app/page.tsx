@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { unstable_cache } from 'next/cache'
+import { Suspense } from 'react'
 import { getCurrentTenant } from '@/lib/tenant'
 import { prisma } from '@esquel-activo/db'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { TenantCatalog } from '@/components/TenantCatalog'
+import { ProductDetailPage } from '@/components/ProductDetailPage'
 
 // Slides placeholder — se reemplazarán con datos de la DB cuando esté el Dashboard
 const PLACEHOLDER_SLIDES = [
@@ -82,8 +84,49 @@ const getTenantProducts = unstable_cache(
   { revalidate: 30 }
 )
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const tenant = await getCurrentTenant()
+  const { p: productId } = await searchParams
+
+  // ---- Vista de detalle de producto ----
+  if (tenant && productId) {
+    const product = await prisma.product.findFirst({
+      where: { id: productId, tenantId: tenant.id, isActive: true },
+      select: {
+        id: true, name: true, description: true, price: true, discountPrice: true,
+        imageUrls: true,
+        category: { select: { name: true } },
+        variants: {
+          where: { isActive: true },
+          orderBy: { price: 'asc' },
+          select: { id: true, name: true, price: true, stock: true },
+        },
+      },
+    })
+
+    if (product) {
+      const serialized = {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price.toString(),
+        discountPrice: product.discountPrice?.toString() ?? null,
+        imageUrls: product.imageUrls,
+        category: product.category,
+        variants: product.variants.map(v => ({ ...v, price: v.price.toString() })),
+      }
+      return (
+        <main
+          className="mx-auto max-w-2xl"
+          style={{ '--color-primary': tenant.primaryColor } as React.CSSProperties}
+        >
+          <Suspense>
+            <ProductDetailPage product={serialized} tenantWhatsapp={tenant.contactPhone} />
+          </Suspense>
+        </main>
+      )
+    }
+  }
 
   if (tenant) {
     const { featuredRaw, allProductsRaw } = await getTenantProducts(tenant.id)
@@ -176,11 +219,12 @@ export default async function HomePage() {
           </div>
 
           {/* Catálogo con slideshow interactivo */}
-          <TenantCatalog
-            featuredProducts={featured}
-            sections={serializedSections}
-            tenantWhatsapp={tenant.contactPhone}
-          />
+          <Suspense>
+            <TenantCatalog
+              featuredProducts={featured}
+              sections={serializedSections}
+            />
+          </Suspense>
         </div>
       </main>
     )

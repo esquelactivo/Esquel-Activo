@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { ProductDrawer } from './ProductDrawer'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductSlideshow } from './ProductSlideshow'
 
 type Variant = { id: string; name: string; price: string; stock: number }
@@ -26,25 +25,29 @@ type Section = {
 interface TenantCatalogProps {
   featuredProducts: Product[]
   sections: Section[]
-  tenantWhatsapp?: string | null | undefined
 }
 
-export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: TenantCatalogProps) {
-  const [selected, setSelected] = useState<Product | null>(null)
+export function TenantCatalog({ featuredProducts, sections }: TenantCatalogProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  function navigateToProduct(productId: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('p', productId)
+    router.push(`?${params.toString()}`)
+  }
 
   return (
     <>
-      {/* Slideshow destacados */}
       {featuredProducts.length > 0 && (
         <div className="mb-8">
           <ProductSlideshow
             products={featuredProducts}
-            onProductClick={(p) => setSelected(p)}
+            onProductClick={(p) => navigateToProduct(p.id)}
           />
         </div>
       )}
 
-      {/* Catálogo */}
       {sections.length > 0 ? (
         <div className="flex flex-col gap-8">
           {sections.map((section) => (
@@ -56,11 +59,12 @@ export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: Te
                 {section.products.map((p) => (
                   <button
                     key={p.id}
-                    onClick={() => setSelected(p)}
+                    onClick={() => navigateToProduct(p.id)}
                     className="overflow-hidden rounded-2xl bg-white text-left shadow-sm ring-1 ring-gray-100 transition-transform active:scale-95"
                   >
                     <div className="aspect-square bg-gray-50">
                       {p.imageUrls[0] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={p.imageUrls[0]} alt={p.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-3xl">📦</div>
@@ -97,16 +101,6 @@ export function TenantCatalog({ featuredProducts, sections, tenantWhatsapp }: Te
           <p className="text-sm text-gray-500">El catálogo se está preparando</p>
         </div>
       )}
-
-      {/* Drawer de detalle */}
-      {selected && (
-        <ProductDrawer
-          product={selected}
-          tenantWhatsapp={tenantWhatsapp ?? null}
-          onClose={() => setSelected(null)}
-        />
-      )}
-
     </>
   )
 }
