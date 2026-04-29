@@ -163,11 +163,15 @@ async function main() {
   // ---------------------------------------------------------------------------
   const platformAdmin = await prisma.user.upsert({
     where: { email: 'fabri.webmaster@gmail.com' },
-    update: {},
+    update: {
+      isSuperAdmin: true,
+      passwordHash: adminPassword,
+    },
     create: {
       email: 'fabri.webmaster@gmail.com',
       name: 'Fabri Admin',
       passwordHash: adminPassword,
+      isSuperAdmin: true,
       memberships: {
         create: [
           { tenantId: reinaMora.id, role: 'OWNER' },
