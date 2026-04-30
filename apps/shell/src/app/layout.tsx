@@ -9,6 +9,8 @@ import { CartProvider } from '@/context/CartContext'
 import { NavProvider } from '@/context/NavContext'
 import { CartShell } from '@/components/CartShell'
 import { BottomTabs } from '@/components/BottomTabs'
+import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar'
+import { PushNotificationBanner } from '@/components/PushNotificationBanner'
 import NextTopLoader from 'nextjs-toploader'
 import './globals.css'
 
@@ -60,6 +62,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={`min-h-screen ${isLoggedIn ? 'pb-16' : ''}`}>
         <NextTopLoader color="var(--color-primary, #1a1a2e)" showSpinner={false} />
+        <ServiceWorkerRegistrar />
         <CartProvider>
           <NavProvider tenants={navTenants} currentTenantSlug={tenant?.slug ?? null}>
             <Header tenants={navTenants} currentTenantSlug={tenant?.slug ?? null} isLoggedIn={isLoggedIn} />
@@ -68,6 +71,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {isLoggedIn && session.user && (
               <BottomTabs session={{ user: { name: session.user.name ?? null, email: session.user.email ?? null, image: session.user.image ?? null } }} />
             )}
+            <PushNotificationBanner />
           </NavProvider>
         </CartProvider>
       </body>

@@ -22,6 +22,7 @@ export type {
   StampCard,
   UserStampCard,
   StampTransaction,
+  PushSubscription,
   Category,
   Product,
   ProductVariant,

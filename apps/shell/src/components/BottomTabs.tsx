@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 import { signOut } from 'next-auth/react'
+import { PushSettingsCard } from './PushSettingsCard'
 
 type Session = {
   user: { name?: string | null; email?: string | null; image?: string | null }
@@ -118,7 +119,8 @@ export function BottomTabs({ session }: { session: Session }) {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
+              <PushSettingsCard />
               <button
                 onClick={() => { signOut({ callbackUrl: '/' }) }}
                 className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-colors text-red-500"

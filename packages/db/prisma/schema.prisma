@@ -294,6 +294,21 @@ enum QrTokenType {
   @@schema("public")
 }
 
+/// Suscripción a notificaciones push Web Push (VAPID).
+/// Almacena el endpoint y las claves de cifrado del cliente.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String?  // null = visitante anónimo
+  tenantId  String?  // null = plataforma global
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@schema("public")
+}
+
 // =============================================================================
 // SCHEMA: tenant_template — Estructura de datos POR comercio
 //

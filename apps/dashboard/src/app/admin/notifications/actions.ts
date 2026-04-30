@@ -2,6 +2,37 @@
 
 import { prisma } from '@esquel-activo/db'
 import { revalidatePath } from 'next/cache'
+import webPush from 'web-push'
+
+function getWebPush() {
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const privateKey = process.env.VAPID_PRIVATE_KEY
+  const email = process.env.VAPID_EMAIL ?? 'mailto:admin@esquel-activo.com'
+  if (!publicKey || !privateKey) return null
+  webPush.setVapidDetails(email, publicKey, privateKey)
+  return webPush
+}
+
+async function sendPushToSubscriptions(
+  subscriptions: { endpoint: string; p256dh: string; auth: string }[],
+  payload: { title: string; body: string; url?: string }
+) {
+  const wp = getWebPush()
+  if (!wp || subscriptions.length === 0) return
+
+  const payloadStr = JSON.stringify(payload)
+  await Promise.allSettled(
+    subscriptions.map(sub =>
+      wp.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+        payloadStr
+      ).catch(() => {
+        // Remove dead subscriptions silently
+        prisma.pushSubscription.deleteMany({ where: { endpoint: sub.endpoint } }).catch(() => {})
+      })
+    )
+  )
+}
 
 export async function createNotification(formData: FormData): Promise<{ success: boolean; error?: string }> {
   const title = formData.get('title') as string
@@ -31,6 +62,15 @@ export async function createNotification(formData: FormData): Promise<{ success:
         userId: targetType === 'USER' ? userId || null : null,
       },
     })
+
+    // Send web push to relevant subscribers (fire-and-forget)
+    const pushFilter: Record<string, unknown> = {}
+    if (targetType === 'TENANT' && tenantId) pushFilter.tenantId = tenantId
+    else if (targetType === 'USER' && userId) pushFilter.userId = userId
+    // ALL and CLIENTS: send to all subscribers
+
+    const subs = await prisma.pushSubscription.findMany({ where: pushFilter, take: 500 })
+    sendPushToSubscriptions(subs, { title: title.trim(), body: body.trim(), url: '/' })
 
     revalidatePath('/admin/notifications')
     return { success: true }

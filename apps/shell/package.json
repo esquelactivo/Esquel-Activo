@@ -21,7 +21,8 @@
     "nextjs-toploader": "^3.9.17",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.1.0"
+    "tailwindcss": "^4.1.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@esquel-activo/config": "workspace:*",
