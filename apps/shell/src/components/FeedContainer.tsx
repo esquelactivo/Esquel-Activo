@@ -48,7 +48,7 @@ export function FeedContainer({ initialPosts, initialNextCursor, hasStampCard, s
     const el = sentinelRef.current
     if (!el) return
     const observer = new IntersectionObserver(
-      entries => { if (entries[0].isIntersecting) loadMore() },
+      entries => { if (entries[0]?.isIntersecting) loadMore() },
       { rootMargin: '200px' }
     )
     observer.observe(el)
