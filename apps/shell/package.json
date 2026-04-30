@@ -14,13 +14,14 @@
     "@esquel-activo/tenant-engine": "workspace:*",
     "@esquel-activo/ui": "workspace:*",
     "@prisma/nextjs-monorepo-workaround-plugin": "^7.6.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "bcryptjs": "^2.4.3",
     "next": "^15.1.6",
+    "next-auth": "^5.0.0-beta.25",
+    "nextjs-toploader": "^3.9.17",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next-auth": "^5.0.0-beta.25",
-    "bcryptjs": "^2.4.3",
-    "tailwindcss": "^4.1.0",
-    "@tailwindcss/postcss": "^4.1.0"
+    "tailwindcss": "^4.1.0"
   },
   "devDependencies": {
     "@esquel-activo/config": "workspace:*",
