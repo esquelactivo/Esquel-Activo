@@ -270,6 +270,30 @@ enum FieldType {
   @@schema("public")
 }
 
+/// Token QR de corta duración para intercambio comercio↔usuario
+model QrToken {
+  id        String      @id @default(cuid())
+  userId    String      // public.User.id
+  tenantId  String      // public.Tenant.id
+  type      QrTokenType
+  code      String      @unique // código de 6 dígitos mostrado al usuario
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime    @default(now())
+
+  @@index([code])
+  @@index([userId])
+  @@schema("public")
+}
+
+enum QrTokenType {
+  STAMP  // para agregar sellos
+  POINTS // para acumular puntos (fase siguiente)
+  EVENT  // para validar entrada a un evento
+
+  @@schema("public")
+}
+
 // =============================================================================
 // SCHEMA: tenant_template — Estructura de datos POR comercio
 //
@@ -394,6 +418,54 @@ enum OrderStatus {
   SHIPPED    // En camino
   DELIVERED  // Entregado
   CANCELLED  // Cancelado
+
+  @@schema("tenant_template")
+}
+
+/// Programa de tarjeta de sellos de un comercio
+model StampCard {
+  id          String          @id @default(cuid())
+  tenantId    String
+  name        String          // ej: "Tarjeta de café"
+  description String?
+  totalStamps Int             @default(10)
+  reward      String          // ej: "1 café gratis"
+  isActive    Boolean         @default(true)
+  color       String?         // color de acento de la tarjeta
+  imageUrl    String?
+  userCards   UserStampCard[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([tenantId])
+  @@schema("tenant_template")
+}
+
+/// Tarjeta de sellos de un usuario en un comercio específico
+model UserStampCard {
+  id             String             @id @default(cuid())
+  stampCardId    String
+  stampCard      StampCard          @relation(fields: [stampCardId], references: [id], onDelete: Cascade)
+  userId         String             // public.User.id — sin relación cross-schema
+  currentStamps  Int                @default(0)
+  completedCount Int                @default(0) // veces que completó la tarjeta
+  transactions   StampTransaction[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@unique([stampCardId, userId])
+  @@index([userId])
+  @@schema("tenant_template")
+}
+
+/// Registro de cada sello agregado (auditoría)
+model StampTransaction {
+  id           String        @id @default(cuid())
+  userCardId   String
+  userCard     UserStampCard @relation(fields: [userCardId], references: [id], onDelete: Cascade)
+  stampsAdded  Int           @default(1)
+  merchantNote String?
+  createdAt    DateTime      @default(now())
 
   @@schema("tenant_template")
 }

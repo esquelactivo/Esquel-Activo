@@ -6,6 +6,7 @@ import { prisma } from '@esquel-activo/db'
 import { HeroSlideshow } from '@/components/HeroSlideshow'
 import { TenantCatalog } from '@/components/TenantCatalog'
 import { ProductDetailPage } from '@/components/ProductDetailPage'
+import { FeedSection } from '@/components/FeedSection'
 
 // Slides placeholder — se reemplazarán con datos de la DB cuando esté el Dashboard
 const PLACEHOLDER_SLIDES = [
@@ -217,6 +218,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>
           </div>
+
+          {/* Feed: sellos + novedades */}
+          <Suspense>
+            <FeedSection tenantId={tenant.id} />
+          </Suspense>
 
           {/* Catálogo con slideshow interactivo */}
           <Suspense>
