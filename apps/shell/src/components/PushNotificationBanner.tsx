@@ -1,24 +1,31 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { usePushNotifications } from '@/hooks/usePushNotifications'
+import { usePushNotifications } from '@/context/PushNotificationsContext'
 
 const DISMISSED_KEY = 'push-banner-dismissed'
 
 export function PushNotificationBanner() {
   const { state, subscribe } = usePushNotifications()
-  const [dismissed, setDismissed] = useState(true) // start hidden to avoid flash
+  const [dismissed, setDismissed] = useState(true) // oculto inicialmente para evitar flash
 
   useEffect(() => {
     setDismissed(localStorage.getItem(DISMISSED_KEY) === '1')
   }, [])
+
+  // Auto-dismiss cuando el estado pasa a 'subscribed' (ej: ya tenía permisos)
+  useEffect(() => {
+    if (state === 'subscribed') {
+      localStorage.setItem(DISMISSED_KEY, '1')
+      setDismissed(true)
+    }
+  }, [state])
 
   function dismiss() {
     localStorage.setItem(DISMISSED_KEY, '1')
     setDismissed(true)
   }
 
-  // Only show for states where user can act
   if (dismissed || state === 'loading' || state === 'subscribed' || state === 'denied' || state === 'unsupported') {
     return null
   }
@@ -33,7 +40,7 @@ export function PushNotificationBanner() {
             En iOS, tocá <strong>Compartir → Agregar a pantalla de inicio</strong> y abrí la app desde ahí.
           </p>
         </div>
-        <button onClick={dismiss} className="text-gray-400 hover:text-white text-lg leading-none shrink-0">×</button>
+        <button onClick={dismiss} className="text-gray-400 hover:text-white text-xl leading-none shrink-0">×</button>
       </div>
     )
   }
@@ -54,7 +61,10 @@ export function PushNotificationBanner() {
           Ahora no
         </button>
         <button
-          onClick={async () => { await subscribe(); dismiss() }}
+          onClick={async () => {
+            const ok = await subscribe()
+            if (ok) dismiss() // solo dismissea si la suscripción fue exitosa
+          }}
           className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:opacity-90"
         >
           Activar

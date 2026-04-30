@@ -1,6 +1,6 @@
 'use client'
 
-import { usePushNotifications } from '@/hooks/usePushNotifications'
+import { usePushNotifications } from '@/context/PushNotificationsContext'
 
 export function PushSettingsCard() {
   const { state, error, subscribe, unsubscribe } = usePushNotifications()
@@ -20,7 +20,6 @@ export function PushSettingsCard() {
             {state === 'loading' && 'Comprobando estado…'}
           </p>
         </div>
-        {/* Toggle */}
         {(state === 'subscribed' || state === 'unsubscribed') && (
           <button
             onClick={state === 'subscribed' ? unsubscribe : subscribe}

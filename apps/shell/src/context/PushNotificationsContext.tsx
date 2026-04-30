@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 
 export type PushState = 'unsupported' | 'ios-needs-pwa' | 'loading' | 'denied' | 'subscribed' | 'unsubscribed'
 
@@ -13,7 +13,16 @@ function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   return buf.buffer as ArrayBuffer
 }
 
-export function usePushNotifications() {
+interface PushNotificationsContextValue {
+  state: PushState
+  error: string | null
+  subscribe: () => Promise<boolean>
+  unsubscribe: () => Promise<void>
+}
+
+const PushNotificationsContext = createContext<PushNotificationsContextValue | null>(null)
+
+export function PushNotificationsProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PushState>('loading')
   const [error, setError] = useState<string | null>(null)
 
@@ -22,15 +31,9 @@ export function usePushNotifications() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true
 
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      // iOS Safari sin PWA
-      if (isIOS && !isStandalone) {
-        setState('ios-needs-pwa')
-      } else {
-        setState('unsupported')
-      }
+      setState(isIOS && !isStandalone ? 'ios-needs-pwa' : 'unsupported')
       return
     }
-
     if (isIOS && !isStandalone) {
       setState('ios-needs-pwa')
       return
@@ -41,19 +44,15 @@ export function usePushNotifications() {
       if (sub) {
         setState('subscribed')
       } else {
-        const perm = Notification.permission
-        if (perm === 'denied') setState('denied')
-        else setState('unsubscribed')
+        setState(Notification.permission === 'denied' ? 'denied' : 'unsubscribed')
       }
     })
   }, [])
 
-  const subscribe = useCallback(async () => {
+  const subscribe = useCallback(async (): Promise<boolean> => {
     setError(null)
     try {
       const reg = await navigator.serviceWorker.ready
-
-      // Get VAPID public key
       const keyRes = await fetch('/api/push/vapid-key')
       const { publicKey } = await keyRes.json()
 
@@ -66,14 +65,11 @@ export function usePushNotifications() {
       await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          endpoint: json.endpoint,
-          p256dh: json.keys?.p256dh,
-          auth: json.keys?.auth,
-        }),
+        body: JSON.stringify({ endpoint: json.endpoint, p256dh: json.keys?.p256dh, auth: json.keys?.auth }),
       })
 
       setState('subscribed')
+      return true
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       if (msg.includes('denied') || Notification.permission === 'denied') {
@@ -82,10 +78,11 @@ export function usePushNotifications() {
       } else {
         setError('No se pudo activar las notificaciones.')
       }
+      return false
     }
   }, [])
 
-  const unsubscribe = useCallback(async () => {
+  const unsubscribe = useCallback(async (): Promise<void> => {
     setError(null)
     try {
       const reg = await navigator.serviceWorker.ready
@@ -104,5 +101,15 @@ export function usePushNotifications() {
     }
   }, [])
 
-  return { state, error, subscribe, unsubscribe }
+  return (
+    <PushNotificationsContext.Provider value={{ state, error, subscribe, unsubscribe }}>
+      {children}
+    </PushNotificationsContext.Provider>
+  )
+}
+
+export function usePushNotifications() {
+  const ctx = useContext(PushNotificationsContext)
+  if (!ctx) throw new Error('usePushNotifications must be used within PushNotificationsProvider')
+  return ctx
 }
