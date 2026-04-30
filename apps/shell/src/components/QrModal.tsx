@@ -83,8 +83,17 @@ export function QrModal({ onClose }: QrModalProps) {
 
         {!loading && !error && code && (
           <div className="space-y-5 text-center">
-            <div className={`rounded-2xl px-6 py-8 ${expired ? 'bg-gray-100' : 'bg-gray-50'}`}>
-              <p className={`text-6xl font-mono font-bold tracking-[0.15em] ${expired ? 'text-gray-300' : 'text-gray-900'}`}>
+            {/* QR code image */}
+            <div className={`flex flex-col items-center rounded-2xl p-5 ${expired ? 'bg-gray-100 opacity-40' : 'bg-gray-50'}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${code}&margin=0`}
+                alt={`QR code ${code}`}
+                width={180}
+                height={180}
+                className="rounded-xl"
+              />
+              <p className={`mt-3 text-3xl font-mono font-bold tracking-[0.2em] ${expired ? 'text-gray-300' : 'text-gray-900'}`}>
                 {code}
               </p>
             </div>

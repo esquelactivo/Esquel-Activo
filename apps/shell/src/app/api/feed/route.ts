@@ -29,7 +29,8 @@ export async function GET(req: NextRequest) {
 
   const hasMore = posts.length > limit
   const items = hasMore ? posts.slice(0, limit) : posts
-  const nextCursor = hasMore ? items[items.length - 1].id : null
+  const lastItem = items.at(-1)
+  const nextCursor = hasMore && lastItem ? lastItem.id : null
 
   return NextResponse.json({
     items: items.map(p => ({
