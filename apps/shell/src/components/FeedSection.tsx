@@ -15,7 +15,7 @@ export async function FeedSection({ tenantId }: FeedSectionProps) {
   const [stampCard, initialPostsRaw] = await Promise.all([
     prisma.stampCard.findFirst({
       where: { tenantId, isActive: true },
-      select: { id: true, name: true, description: true, totalStamps: true, reward: true, color: true },
+      select: { id: true, tenantId: true, name: true, description: true, totalStamps: true, reward: true, color: true },
     }).catch(() => null),
     prisma.post.findMany({
       where: { tenantId, isPublished: true },

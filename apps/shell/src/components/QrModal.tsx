@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 
 interface QrModalProps {
+  tenantId: string
   onClose: () => void
 }
 
-export function QrModal({ onClose }: QrModalProps) {
+export function QrModal({ tenantId, onClose }: QrModalProps) {
   const [code, setCode] = useState<string | null>(null)
   const [expiresAt, setExpiresAt] = useState<Date | null>(null)
   const [secondsLeft, setSecondsLeft] = useState(0)
@@ -17,7 +18,11 @@ export function QrModal({ onClose }: QrModalProps) {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('/api/qr/generate', { method: 'POST' })
+      const res = await fetch('/api/qr/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenantId }),
+      })
       const data = await res.json()
       if (!res.ok) {
         setError(data.error ?? 'Error al generar el código')

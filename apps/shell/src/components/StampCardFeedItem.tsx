@@ -6,6 +6,7 @@ import { QrModal } from './QrModal'
 interface StampCardFeedItemProps {
   card: {
     id: string
+    tenantId: string
     name: string
     description: string | null
     totalStamps: number
@@ -91,7 +92,7 @@ export function StampCardFeedItem({ card, userCard, isLoggedIn }: StampCardFeedI
         </div>
       </div>
 
-      {showQr && <QrModal onClose={() => setShowQr(false)} />}
+      {showQr && <QrModal tenantId={card.tenantId} onClose={() => setShowQr(false)} />}
     </>
   )
 }
