@@ -9,6 +9,7 @@ import { CartProvider } from '@/context/CartContext'
 import { NavProvider } from '@/context/NavContext'
 import { CartShell } from '@/components/CartShell'
 import { BottomTabs } from '@/components/BottomTabs'
+import NextTopLoader from 'nextjs-toploader'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -58,6 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {tenant?.faviconUrl && <link rel="icon" href={tenant.faviconUrl} />}
       </head>
       <body className={`min-h-screen ${isLoggedIn ? 'pb-16' : ''}`}>
+        <NextTopLoader color="var(--color-primary, #1a1a2e)" showSpinner={false} />
         <CartProvider>
           <NavProvider tenants={navTenants} currentTenantSlug={tenant?.slug ?? null}>
             <Header tenants={navTenants} currentTenantSlug={tenant?.slug ?? null} isLoggedIn={isLoggedIn} />
