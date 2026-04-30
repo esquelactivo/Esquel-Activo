@@ -34,7 +34,7 @@ export async function FeedSection({ tenantId }: FeedSectionProps) {
 
   const hasMore = initialPostsRaw.length > 10
   const postsPage = hasMore ? initialPostsRaw.slice(0, 10) : initialPostsRaw
-  const nextCursor = hasMore ? postsPage[postsPage.length - 1].id : null
+  const nextCursor = hasMore ? (postsPage.at(-1)?.id ?? null) : null
 
   const initialPosts = postsPage.map(p => ({
     id: p.id,
