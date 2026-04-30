@@ -121,7 +121,8 @@ model User {
   @@schema("public")
 }
 
-/// Notificación de plataforma enviada por el super admin
+/// Notificación de plataforma enviada por el super admin.
+/// Targets: ALL | CLIENTS | BUSINESSES | TENANT | USER
 model Notification {
   id         String             @id @default(cuid())
   title      String
