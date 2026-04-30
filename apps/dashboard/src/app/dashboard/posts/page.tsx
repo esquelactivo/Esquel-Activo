@@ -11,18 +11,31 @@ export default async function PostsPage() {
   if (!session?.user?.tenantId) redirect('/login')
   const tenantId = session.user.tenantId
 
-  const [posts, postTypes] = await Promise.all([
-    prisma.post.findMany({
-      where: { tenantId },
-      orderBy: { createdAt: 'desc' },
-      include: { values: { select: { fieldKey: true, value: true } } },
-    }),
-    prisma.postType.findMany({
-      where: { isActive: true },
-      orderBy: { name: 'asc' },
-      select: { id: true, name: true, slug: true, icon: true },
-    }),
-  ])
+  let posts: Awaited<ReturnType<typeof prisma.post.findMany>> = []
+  let postTypes: { id: string; name: string; slug: string; icon: string | null }[] = []
+
+  try {
+    ;[posts, postTypes] = await Promise.all([
+      prisma.post.findMany({
+        where: { tenantId },
+        orderBy: { createdAt: 'desc' },
+        include: { values: { select: { fieldKey: true, value: true } } },
+      }),
+      prisma.postType.findMany({
+        where: { isActive: true },
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, slug: true, icon: true },
+      }),
+    ])
+  } catch {
+    return (
+      <div className="rounded-2xl border border-orange-100 bg-orange-50 p-6 text-center space-y-2">
+        <p className="text-2xl">⏳</p>
+        <p className="text-sm font-medium text-orange-800">Las tablas de contenido aún no están creadas en la base de datos.</p>
+        <p className="text-xs text-orange-600">El administrador de la plataforma debe aplicar la migración SQL para habilitar esta funcionalidad.</p>
+      </div>
+    )
+  }
 
   // Agrupar posts por tipo
   const grouped = new Map<string, { name: string; icon: string | null; posts: typeof posts }>()

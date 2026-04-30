@@ -5,10 +5,24 @@ import { deletePostType } from './actions'
 export const metadata = { title: 'Tipos de contenido — Admin' }
 
 export default async function AdminPostTypesPage() {
-  const postTypes = await prisma.postType.findMany({
-    orderBy: { createdAt: 'asc' },
-    include: { _count: { select: { fields: true } } },
-  })
+  let postTypes: Awaited<ReturnType<typeof prisma.postType.findMany<{ include: { _count: { select: { fields: true } } } }>>> = []
+  try {
+    postTypes = await prisma.postType.findMany({
+      orderBy: { createdAt: 'asc' },
+      include: { _count: { select: { fields: true } } },
+    })
+  } catch {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold text-white">Tipos de contenido</h1>
+        <div className="rounded-2xl border border-orange-700 bg-orange-900/20 p-6 text-center space-y-2">
+          <p className="text-2xl">⏳</p>
+          <p className="text-sm font-medium text-orange-300">Las tablas aún no están creadas en la base de datos.</p>
+          <p className="text-xs text-orange-500">Aplicá la migración SQL: <code className="bg-orange-900/40 px-1 rounded">packages/db/prisma/migrations/20260430_add_post_types/migration.sql</code></p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
