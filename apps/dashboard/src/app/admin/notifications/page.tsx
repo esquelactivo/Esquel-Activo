@@ -21,14 +21,35 @@ const TARGET_COLORS: Record<string, string> = {
 }
 
 export default async function AdminNotificationsPage() {
-  const [notifications, tenants, users] = await Promise.all([
-    prisma.notification.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { reads: { select: { id: true } } },
-    }),
-    prisma.tenant.findMany({ where: { isActive: true }, orderBy: { name: 'asc' }, select: { id: true, name: true, slug: true } }),
-    prisma.user.findMany({ orderBy: { email: 'asc' }, select: { id: true, email: true, name: true } }),
-  ])
+  let notifications: Awaited<ReturnType<typeof prisma.notification.findMany>> = []
+  let tenants: { id: string; name: string; slug: string }[] = []
+  let users: { id: string; email: string; name: string | null }[] = []
+  let loadError: string | null = null
+
+  try {
+    ;[notifications, tenants, users] = await Promise.all([
+      prisma.notification.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { reads: { select: { id: true } } },
+      }),
+      prisma.tenant.findMany({ where: { isActive: true }, orderBy: { name: 'asc' }, select: { id: true, name: true, slug: true } }),
+      prisma.user.findMany({ orderBy: { email: 'asc' }, select: { id: true, email: true, name: true } }),
+    ])
+  } catch (err) {
+    loadError = String(err)
+  }
+
+  if (loadError) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold text-white">Notificaciones</h1>
+        <div className="rounded-2xl border border-red-700 bg-red-900/20 p-6">
+          <p className="text-sm font-semibold text-red-400 mb-3">Error al cargar notificaciones:</p>
+          <pre className="text-xs text-red-300 whitespace-pre-wrap break-all">{loadError}</pre>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
