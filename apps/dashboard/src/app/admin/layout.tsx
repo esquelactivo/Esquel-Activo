@@ -23,6 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNavLink href="/admin/tenants" label="Comercios" icon="🏪" />
           <AdminNavLink href="/admin/users" label="Usuarios" icon="👥" />
           <AdminNavLink href="/admin/products" label="Productos" icon="📦" />
+          <AdminNavLink href="/admin/post-types" label="Tipos de contenido" icon="📝" />
           <AdminNavLink href="/admin/notifications" label="Notificaciones" icon="🔔" />
         </nav>
 

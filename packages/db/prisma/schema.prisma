@@ -227,6 +227,49 @@ model VerificationToken {
   @@schema("public")
 }
 
+/// Tipo de contenido personalizado (definido por el super admin)
+model PostType {
+  id          String          @id @default(cuid())
+  name        String          // ej: "Noticia", "Oferta", "Evento"
+  slug        String          @unique // ej: "noticia", "oferta", "evento"
+  description String?
+  icon        String?         // emoji representativo
+  isActive    Boolean         @default(true)
+  fields      PostTypeField[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@schema("public")
+}
+
+/// Campo de un PostType (define la estructura dinámica del tipo)
+model PostTypeField {
+  id          String    @id @default(cuid())
+  postTypeId  String
+  postType    PostType  @relation(fields: [postTypeId], references: [id], onDelete: Cascade)
+  name        String    // ej: "Descripción", "Imagen", "Fecha del evento"
+  key         String    // ej: "description", "image", "event_date"
+  type        FieldType
+  required    Boolean   @default(false)
+  placeholder String?
+  sortOrder   Int       @default(0)
+
+  @@unique([postTypeId, key])
+  @@schema("public")
+}
+
+enum FieldType {
+  TEXT
+  TEXTAREA
+  IMAGE
+  URL
+  DATE
+  BOOLEAN
+  NUMBER
+
+  @@schema("public")
+}
+
 // =============================================================================
 // SCHEMA: tenant_template — Estructura de datos POR comercio
 //
@@ -352,6 +395,37 @@ enum OrderStatus {
   DELIVERED  // Entregado
   CANCELLED  // Cancelado
 
+  @@schema("tenant_template")
+}
+
+/// Publicación de contenido de un comercio (basada en un PostType)
+model Post {
+  id           String           @id @default(cuid())
+  tenantId     String           // public.Tenant.id — sin relación (cross-schema)
+  postTypeId   String           // public.PostType.id — sin relación (cross-schema)
+  postTypeSlug String           // denormalizado para routing
+  postTypeName String           // denormalizado para display
+  title        String
+  isPublished  Boolean          @default(false)
+  publishedAt  DateTime?
+  values       PostFieldValue[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, postTypeSlug])
+  @@schema("tenant_template")
+}
+
+/// Valor de un campo para un Post
+model PostFieldValue {
+  id       String  @id @default(cuid())
+  postId   String
+  post     Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  fieldKey String
+  value    String? @db.Text
+
+  @@unique([postId, fieldKey])
   @@schema("tenant_template")
 }
 

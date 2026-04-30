@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: '/dashboard',            label: 'Inicio',      icon: HomeIcon,       exact: true  },
   { href: '/dashboard/products',   label: 'Productos',   icon: ProductsIcon,   exact: false },
   { href: '/dashboard/categories', label: 'Categorías',  icon: CategoriesIcon, exact: false },
+  { href: '/dashboard/posts',      label: 'Contenido',   icon: PostsIcon,      exact: false },
   { href: '/dashboard/orders',     label: 'Pedidos',     icon: OrdersIcon,     exact: false },
   { href: '/dashboard/settings',   label: 'Config',      icon: SettingsIcon,   exact: false },
 ]
@@ -158,6 +159,18 @@ function CategoriesIcon({ active }: { active: boolean }) {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" fill={active ? 'currentColor' : 'none'} />
       <line x1="7" y1="7" x2="7.01" y2="7" stroke="white" strokeWidth="2.5" />
+    </svg>
+  )
+}
+
+function PostsIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" fill={active ? 'currentColor' : 'none'} />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
     </svg>
   )
 }
