@@ -5,9 +5,11 @@ import { FeedContainer } from './FeedContainer'
 
 interface FeedSectionProps {
   tenantId: string
+  hasCatalog: boolean
+  catalogSlot: React.ReactNode
 }
 
-export async function FeedSection({ tenantId }: FeedSectionProps) {
+export async function FeedSection({ tenantId, hasCatalog, catalogSlot }: FeedSectionProps) {
   const session = await auth()
   const userId = session?.user ? (session.user as { id: string }).id : null
 
@@ -22,7 +24,10 @@ export async function FeedSection({ tenantId }: FeedSectionProps) {
       include: { values: { select: { fieldKey: true, value: true } } },
       orderBy: { publishedAt: 'desc' },
       take: 11,
-    }).catch(() => []),
+    }).catch((err) => {
+      console.error('[FeedSection] Error fetching posts:', err)
+      return []
+    }),
   ])
 
   const userCard = stampCard && userId
@@ -54,14 +59,16 @@ export async function FeedSection({ tenantId }: FeedSectionProps) {
     />
   ) : null
 
-  if (!stampCard && initialPosts.length === 0) return null
+  if (!stampCard && initialPosts.length === 0 && !hasCatalog) return null
 
   return (
     <FeedContainer
       initialPosts={initialPosts}
       initialNextCursor={nextCursor}
       hasStampCard={!!stampCard}
+      hasCatalog={hasCatalog}
       stampCardSlot={stampCardSlot}
+      catalogSlot={catalogSlot}
     />
   )
 }

@@ -13,16 +13,18 @@ type FeedPost = {
   values: { fieldKey: string; value: string | null }[]
 }
 
-type FilterType = 'all' | 'stamps' | 'posts'
+type FilterType = 'all' | 'stamps' | 'posts' | 'products'
 
 interface FeedContainerProps {
   initialPosts: FeedPost[]
   initialNextCursor: string | null
   hasStampCard: boolean
+  hasCatalog: boolean
   stampCardSlot: React.ReactNode
+  catalogSlot: React.ReactNode
 }
 
-export function FeedContainer({ initialPosts, initialNextCursor, hasStampCard, stampCardSlot }: FeedContainerProps) {
+export function FeedContainer({ initialPosts, initialNextCursor, hasStampCard, hasCatalog, stampCardSlot, catalogSlot }: FeedContainerProps) {
   const [filter, setFilter] = useState<FilterType>('all')
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts)
   const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor)
@@ -55,7 +57,6 @@ export function FeedContainer({ initialPosts, initialNextCursor, hasStampCard, s
     return () => observer.disconnect()
   }, [loadMore])
 
-  // Reset when filter changes
   useEffect(() => {
     if (filter === 'all' || filter === 'posts') {
       setPosts(initialPosts)
@@ -65,11 +66,13 @@ export function FeedContainer({ initialPosts, initialNextCursor, hasStampCard, s
 
   const showStamp = hasStampCard && (filter === 'all' || filter === 'stamps')
   const showPosts = filter === 'all' || filter === 'posts'
+  const showCatalog = hasCatalog && (filter === 'all' || filter === 'products')
 
   const filters: { id: FilterType; label: string }[] = [
     { id: 'all', label: 'Todo' },
     ...(hasStampCard ? [{ id: 'stamps' as FilterType, label: 'Sellos' }] : []),
     { id: 'posts', label: 'Novedades' },
+    ...(hasCatalog ? [{ id: 'products' as FilterType, label: 'Productos' }] : []),
   ]
 
   return (
@@ -100,13 +103,15 @@ export function FeedContainer({ initialPosts, initialNextCursor, hasStampCard, s
         ))}
 
         {showPosts && posts.length === 0 && !loading && (
-          <div className="rounded-2xl border border-dashed border-gray-200 py-10 text-center text-sm text-gray-400">
-            Todavía no hay publicaciones
+          <div className="rounded-2xl border border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+            Todavía no hay novedades publicadas
           </div>
         )}
+
+        {showCatalog && catalogSlot}
       </div>
 
-      {/* Infinite scroll sentinel */}
+      {/* Infinite scroll sentinel (solo para posts) */}
       {showPosts && <div ref={sentinelRef} className="h-4" />}
 
       {loading && (

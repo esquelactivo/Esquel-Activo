@@ -219,16 +219,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </div>
           </div>
 
-          {/* Feed: sellos + novedades */}
+          {/* Feed: sellos + novedades + catálogo */}
           <Suspense>
-            <FeedSection tenantId={tenant.id} />
-          </Suspense>
-
-          {/* Catálogo con slideshow interactivo */}
-          <Suspense>
-            <TenantCatalog
-              featuredProducts={featured}
-              sections={serializedSections}
+            <FeedSection
+              tenantId={tenant.id}
+              hasCatalog={featured.length > 0 || serializedSections.length > 0}
+              catalogSlot={
+                <TenantCatalog
+                  featuredProducts={featured}
+                  sections={serializedSections}
+                />
+              }
             />
           </Suspense>
         </div>
